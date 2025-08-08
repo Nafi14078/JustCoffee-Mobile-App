@@ -1,37 +1,44 @@
-import React from 'react';
-import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
+import React, { useCallback, useEffect, useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import * as Font from "expo-font";
+import AppNavigator from "./src/navigation/AppNavigator";
+import { View, ActivityIndicator } from "react-native";
 
 export default function App() {
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Welcome to JustCoffee ☕️</Text>
-        <Text style={styles.subtitle}>This is your main entry via App.js!</Text>
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  const loadFonts = useCallback(async () => {
+    await Font.loadAsync({
+      "OpenSans-Regular": require("./assets/fonts/open-sans.regular.ttf"),
+      "OpenSans-Bold": require("./assets/fonts/open-sans.bold.ttf"),
+    });
+
+    setFontsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#1E1E1E",
+        }}
+      >
+        <ActivityIndicator size="large" color="#a9745b" />
       </View>
-    </SafeAreaView>
+    );
+  }
+
+  return (
+    <>
+      <AppNavigator />
+      <StatusBar style="light" />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex:1,
-    backgroundColor: '#1E1E1E',
-  },
-  container: {
-    flex:1,
-    justifyContent:'center',
-    alignItems:'center',
-    paddingHorizontal: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#a9745b',
-    marginBottom:12,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: 'white',
-    textAlign: 'center',
-  },
-});
