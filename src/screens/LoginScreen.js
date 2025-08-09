@@ -7,50 +7,14 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Animated,
-  Easing
+  ScrollView,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-// Floating coffee cup + steam animation
-function InteractiveCoffeeIcon() {
-  const steamAnim = useRef(new Animated.Value(0)).current;
-
-  const animateSteam = () => {
-    Animated.sequence([
-      Animated.timing(steamAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-        easing: Easing.out(Easing.ease),
-      }),
-      Animated.timing(steamAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-        easing: Easing.in(Easing.ease),
-      }),
-    ]).start();
-  };
-
-  return (
-    <TouchableOpacity onPress={animateSteam} style={styles.floatingCoffeeIcon}>
-      <MaterialCommunityIcons name="coffee-outline" size={72} color="#a9745b" />
-      <Animated.View
-        style={[
-          styles.steam,
-          { transform: [{ translateY: steamAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -24] }) }] }
-        ]}
-      >
-        <MaterialCommunityIcons name="weather-windy" size={40} color="#d7cec7" />
-      </Animated.View>
-    </TouchableOpacity>
-  );
-}
+import LottieView from 'lottie-react-native';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const animationRef = useRef(null);
 
   const onLogin = () => {
     navigation.replace('MainTabs');
@@ -61,34 +25,58 @@ export default function LoginScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={styles.container}
     >
-      <InteractiveCoffeeIcon />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header with animation and title */}
+        <View style={styles.headerContainer}>
+          <LottieView
+            ref={animationRef}
+            source={require('../../assets/animations/coffee-animation.json')}
+            autoPlay
+            loop
+            style={styles.lottieAnimation}
+          />
+          <Text style={styles.title}>JustCoffee</Text>
+        </View>
 
-      <Text style={styles.title}>JustCoffee</Text>
+        {/* Form */}
+        <View style={styles.formContainer}>
+          <TextInput
+            placeholder="Email"
+            placeholderTextColor="#aaa"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="#aaa"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            style={styles.input}
+          />
+          <TouchableOpacity
+            onPress={onLogin}
+            style={styles.button}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+        </View>
 
-      <TextInput
-        placeholder="Email"
-        placeholderTextColor="#aaa"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-      />
-       <TextInput
-        placeholder="Password"
-        placeholderTextColor="#aaa"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-      />
-      <TouchableOpacity onPress={onLogin} style={styles.button} activeOpacity={0.8}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.footerText} onPress={() => alert('Signup flow not implemented')}>
-        Don’t have an account? <Text style={styles.signupText}>Sign up</Text>
-      </Text>
+        {/* Footer */}
+        <Text
+          style={styles.footerText}
+          onPress={() => alert('Signup flow not implemented')}
+        >
+          Don’t have an account? <Text style={styles.signupText}>Sign up</Text>
+        </Text>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -97,30 +85,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1E1E1E',
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
-  floatingCoffeeIcon: {
-    position: 'absolute',
-    top: '25%',
+  headerContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
+    marginBottom: 40,
   },
-  steam: {
-    position: 'absolute',
-    top: -20,
-    left: 12,
+  lottieAnimation: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
   },
   title: {
     fontSize: 36,
     fontWeight: 'bold',
     fontFamily: 'OpenSans-Bold',
     color: '#a9745b',
-    marginBottom: 48,
-    marginTop: 100,
     textAlign: 'center',
+  },
+  formContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 26,
   },
   input: {
     width: '90%',
@@ -148,6 +139,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.7,
     shadowRadius: 5.3,
+    marginTop: 4,
   },
   buttonText: {
     color: 'white',
