@@ -11,13 +11,14 @@ import {
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 
-export default function LoginScreen({ navigation }) {
+export default function SignUpScreen({ navigation }) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const animationRef = useRef(null);
 
-  const onLogin = () => {
-    navigation.replace('MainTabs');
+  const onSignUp = () => {
+    navigation.replace('Login');
   };
 
   return (
@@ -38,11 +39,18 @@ export default function LoginScreen({ navigation }) {
             loop
             style={styles.lottieAnimation}
           />
-          <Text style={styles.title}>JustCoffee</Text>
+          <Text style={styles.title}>Create Account</Text>
         </View>
 
         {/* Form */}
         <View style={styles.formContainer}>
+          <TextInput
+            placeholder="Name"
+            placeholderTextColor="#aaa"
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+          />
           <TextInput
             placeholder="Email"
             placeholderTextColor="#aaa"
@@ -61,21 +69,21 @@ export default function LoginScreen({ navigation }) {
             style={styles.input}
           />
           <TouchableOpacity
-            onPress={onLogin}
+            onPress={onSignUp}
             style={styles.button}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Login</Text>
+            <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
         <Text
           style={styles.footerText}
-          onPress={() => navigation.replace('SignUp')}
-
+          onPress={() => navigation.replace('Login')}
         >
-          Don’t have an account? <Text style={styles.signupText}>Sign up</Text>
+          Already have an account?{' '}
+          <Text style={styles.signupText}>Login</Text>
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>
