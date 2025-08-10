@@ -1,38 +1,21 @@
 import React from 'react';
+import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function ProductCard({ product, onPress, onPressAdd }) {
+export default function BeanCard({ bean, onPress, onPressAdd }) {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.85}
-      style={styles.card}
-    >
-      {/* IMAGE AT THE TOP */}
-      <Image source={product.image} style={styles.image} resizeMode="cover" />
-      
-      {/* INFO BLOCK BELOW IMAGE */}
-      <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>
-          {product.name}
-        </Text>
-        <Text style={styles.desc} numberOfLines={2}>
-          {product.desc}
-        </Text>
+    <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={() => onPress?.(bean)}>
+      <Image source={bean.image} style={styles.image} resizeMode="cover" />
+      <Text style={styles.name} numberOfLines={1}>{bean.name}</Text>
+      <Text style={styles.desc} numberOfLines={2}>{bean.desc}</Text>
+      <View style={styles.footer}>
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={15} color="#a9745b" />
-          <Text style={styles.ratingText}>{product.rating?.toFixed(1)}</Text>
+          <Text style={styles.ratingStar}>★</Text>
+          <Text style={styles.ratingText}>{bean.rating?.toFixed(1)}</Text>
         </View>
         <View style={styles.priceRow}>
-          <Text style={styles.price}>${product.price?.toFixed(2)}</Text>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={(e) => {
-              e.stopPropagation && e.stopPropagation(); // prevent card tap
-              if(onPressAdd) onPressAdd(product);
-            }}
-          >
+          <Text style={styles.price}>${bean.price?.toFixed(2)}</Text>
+          <TouchableOpacity style={styles.addBtn} onPress={(e) => { e.stopPropagation(); onPressAdd?.(bean); }}>
             <Ionicons name="add" size={18} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -57,32 +40,36 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 22,
     borderTopRightRadius: 22,
   },
-  info: {
-    width: '90%',
-    alignItems: 'center',
-    marginTop: 8,
-  },
   name: {
     fontFamily: 'OpenSans-Bold',
     color: '#fff',
     fontSize: 18,
-    marginBottom: 2,
+    marginTop: 8,
     textAlign: 'center',
   },
   desc: {
     color: '#bdbdbd',
     fontFamily: 'OpenSans-Regular',
     fontSize: 13,
+    marginTop: 4,
+    marginBottom: 8,
     textAlign: 'center',
-    marginBottom: 5,
+  },
+  footer: {
+    width: '90%',
+    alignSelf: 'center',
   },
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 4,
   },
+  ratingStar: {
+    color: '#a9745b',
+    fontSize: 15,
+    marginRight: 3,
+  },
   ratingText: {
-    marginLeft: 3,
     color: '#a9745b',
     fontFamily: 'OpenSans-Regular',
     fontSize: 14,
@@ -90,9 +77,8 @@ const styles = StyleSheet.create({
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5,
+    marginTop: 4,
     justifyContent: 'space-between',
-    width: '100%',
   },
   price: {
     color: '#a9745b',
