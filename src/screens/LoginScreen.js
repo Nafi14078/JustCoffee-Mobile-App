@@ -1,42 +1,57 @@
-import React, { useState, useRef } from 'react';
+import LottieView from 'lottie-react-native';
+import { useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const animationRef = useRef(null);
+  
+  const { login, isLoading, error, clearError } = useAuth();
 
-  const onLogin = () => {
-    navigation.replace('MainTabs');
+  const onLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    clearError();
+    const result = await login({ email: email.trim(), password });
+    
+    if (result.success) {
+      // Navigation will be handled by AppNavigator based on auth state
+      Alert.alert('Success', 'Login successful!');
+    } else {
+      Alert.alert('Login Failed', result.message);
+    }
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header with animation and title */}
         <View style={styles.headerContainer}>
           <LottieView
             ref={animationRef}
             source={require('../../assets/animations/coffee-animation.json')}
+            style={styles.lottieAnimation}
             autoPlay
             loop
-            style={styles.lottieAnimation}
           />
           <Text style={styles.title}>JustCoffee</Text>
         </View>
@@ -44,39 +59,54 @@ export default function LoginScreen({ navigation }) {
         {/* Form */}
         <View style={styles.formContainer}>
           <TextInput
+            style={styles.input}
             placeholder="Email"
-            placeholderTextColor="#aaa"
-            keyboardType="email-address"
-            autoCapitalize="none"
+            placeholderTextColor="#888"
             value={email}
             onChangeText={setEmail}
-            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isLoading}
           />
           <TextInput
+            style={styles.input}
             placeholder="Password"
-            placeholderTextColor="#aaa"
-            secureTextEntry
+            placeholderTextColor="#888"
             value={password}
             onChangeText={setPassword}
-            style={styles.input}
+            secureTextEntry
+            autoCapitalize="none"
+            editable={!isLoading}
           />
+          
+          {error && (
+            <Text style={styles.errorText}>{error}</Text>
+          )}
+
           <TouchableOpacity
+            style={[styles.button, isLoading && styles.buttonDisabled]}
             onPress={onLogin}
-            style={styles.button}
-            activeOpacity={0.8}
+            disabled={isLoading}
           >
-            <Text style={styles.buttonText}>Login</Text>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text style={styles.buttonText}>Login</Text>
+            )}
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
-        <Text
-          style={styles.footerText}
+        <TouchableOpacity
           onPress={() => navigation.replace('SignUp')}
-
+          disabled={isLoading}
         >
-          Don’t have an account? <Text style={styles.signupText}>Sign up</Text>
-        </Text>
+          <Text style={styles.footerText}>
+            Don't have an account?{' '}
+            <Text style={styles.signupText}>Sign up</Text>
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -142,12 +172,22 @@ const styles = StyleSheet.create({
     shadowRadius: 5.3,
     marginTop: 4,
   },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
   buttonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
     letterSpacing: 1,
     fontFamily: 'OpenSans-Bold',
+  },
+  errorText: {
+    color: '#ff6b6b',
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: 'center',
+    fontFamily: 'OpenSans-Regular',
   },
   footerText: {
     marginTop: 20,
