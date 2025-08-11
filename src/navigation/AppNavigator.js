@@ -1,16 +1,17 @@
-import React from 'react';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { ActivityIndicator, View } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
+import CartScreen from '../screens/CartScreen';
+import HomeScreen from '../screens/HomeScreen';
 import IntroScreen from '../screens/IntroScreen';
 import LoginScreen from '../screens/LoginScreen';
-import SignUpScreen from '../screens/SignUpScreen';
-import HomeScreen from '../screens/HomeScreen';
-import CartScreen from '../screens/CartScreen';
-import ProfileScreen from '../screens/ProfileScreen';
 import ProductDetailsScreen from '../screens/ProductDetailsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import SignUpScreen from '../screens/SignUpScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -26,11 +27,11 @@ function MainTabs() {
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
           if (route.name === 'Home') {
-            return <MaterialCommunityIcons name="coffee" size={size} color={color} />;
+            return <Ionicons name="home" size={size} color={color} />;
           } else if (route.name === 'Cart') {
             return <Ionicons name="cart" size={size} color={color} />;
           } else if (route.name === 'Profile') {
-            return <Ionicons name="person" size={size} color={color} />;
+            return <MaterialCommunityIcons name="account" size={size} color={color} />;
           }
           return null;
         },
@@ -45,27 +46,45 @@ function MainTabs() {
 
 /** -------- MAIN APP NAVIGATOR -------- **/
 export default function AppNavigator() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Show loading screen while checking auth state
+  if (isLoading) {
+    return (
+      <View style={{ 
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        backgroundColor: '#1E1E1E' 
+      }}>
+        <ActivityIndicator size="large" color="#a9745b" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer theme={DarkTheme}>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: { backgroundColor: '#2c2c2c' },
-          headerTintColor: 'white',
-          headerTitleStyle: { fontFamily: 'OpenSans-Bold' },
-        }}
-      >
-        {/* App starts here */}
-        <Stack.Screen name="Intro" component={IntroScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="ProductDetails"
-          component={ProductDetailsScreen}
-          options={({ route }) => ({
-            title: route.params?.product?.name || 'Details',
-          })}
-        />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!isAuthenticated ? (
+          // Auth stack
+          <>
+            <Stack.Screen name="Intro" component={IntroScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+          </>
+        ) : (
+          // App stack
+          <>
+            <Stack.Screen name="MainTabs" component={MainTabs} />
+            <Stack.Screen
+              name="ProductDetails"
+              component={ProductDetailsScreen}
+              options={({ route }) => ({
+                title: route.params?.product?.name || 'Details',
+              })}
+            />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
