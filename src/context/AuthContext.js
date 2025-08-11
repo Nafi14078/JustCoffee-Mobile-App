@@ -97,25 +97,20 @@ export const AuthProvider = ({ children }) => {
       const storedAuth = await authService.getStoredUser();
       
       if (storedAuth) {
-        // Verify token is still valid by making a request
-        try {
-          const userData = await authService.getCurrentUser();
-          dispatch({
-            type: actionTypes.SET_USER,
-            payload: {
-              user: userData.user,
-              token: storedAuth.token,
-            },
-          });
-        } catch (error) {
-          // Token invalid, clear storage
-          await authService.logout();
-          dispatch({ type: actionTypes.LOGOUT });
-        }
+        // Don't verify with server on app start - just use stored data
+        // This prevents hanging if server is unreachable
+        dispatch({
+          type: actionTypes.SET_USER,
+          payload: {
+            user: storedAuth.user,
+            token: storedAuth.token,
+          },
+        });
       } else {
         dispatch({ type: actionTypes.SET_LOADING, payload: false });
       }
     } catch (error) {
+      console.error('Auth check error:', error);
       dispatch({ type: actionTypes.SET_LOADING, payload: false });
     }
   };

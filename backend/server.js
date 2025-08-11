@@ -16,9 +16,12 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false }));
 
 // CORS middleware
+// CORS middleware - Allow all origins for development
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:19006'], // Add your Expo dev server URLs
-  credentials: true
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Routes
@@ -51,6 +54,12 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(`Server accessible at:`);
+  console.log(`- Local: http://localhost:${PORT}`);
+  console.log(`- Network: http://192.168.0.102:${PORT}`);
+  console.log(`Backend ready for mobile connections!`);
 });
+
