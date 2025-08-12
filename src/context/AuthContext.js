@@ -14,7 +14,7 @@ const initialState = {
 const actionTypes = {
   SET_LOADING: 'SET_LOADING',
   LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-  REGISTER_SUCCESS: 'REGISTER_SUCCESS',
+  REGISTER_ONLY: 'REGISTER_ONLY', // New action for signup without logging in
   LOGOUT: 'LOGOUT',
   SET_ERROR: 'SET_ERROR',
   CLEAR_ERROR: 'CLEAR_ERROR',
@@ -31,7 +31,6 @@ const authReducer = (state, action) => {
       };
 
     case actionTypes.LOGIN_SUCCESS:
-    case actionTypes.REGISTER_SUCCESS:
       return {
         ...state,
         user: action.payload.user,
@@ -39,6 +38,15 @@ const authReducer = (state, action) => {
         isAuthenticated: true,
         isLoading: false,
         error: null,
+      };
+
+    case actionTypes.REGISTER_ONLY:
+      // Registration succeeded but do not log in yet
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+        // keep user, token, isAuthenticated as initial
       };
 
     case actionTypes.LOGOUT:
@@ -93,9 +101,9 @@ export const AuthProvider = ({ children }) => {
   const checkAuthState = async () => {
     try {
       dispatch({ type: actionTypes.SET_LOADING, payload: true });
-      
+
       const storedAuth = await authService.getStoredUser();
-      
+
       if (storedAuth) {
         // Verify token is still valid by making a request
         try {
@@ -154,13 +162,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.register(userData);
 
       if (response.success) {
-        dispatch({
-          type: actionTypes.REGISTER_SUCCESS,
-          payload: {
-            user: response.user,
-            token: response.token,
-          },
-        });
+        // ✅ Use REGISTER_ONLY so user is NOT authenticated yet
+        dispatch({ type: actionTypes.REGISTER_ONLY });
         return { success: true, message: response.message };
       }
     } catch (error) {

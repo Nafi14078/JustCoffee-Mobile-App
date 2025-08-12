@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // CORS middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:19006'], // Add your Expo dev server URLs
+  origin: '*', // Allow all origins
   credentials: true
 }));
 
