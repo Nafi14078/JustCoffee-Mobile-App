@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
@@ -48,14 +49,26 @@ function MainTabs() {
 export default function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Show loading screen while checking auth state
+  // New state: controls whether Intro screen is visible
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    // Auto-hide intro screen after 2.5 seconds
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Loader while checking auth state
   if (isLoading) {
     return (
-      <View style={{ 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        backgroundColor: '#1E1E1E' 
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#1E1E1E'
       }}>
         <ActivityIndicator size="large" color="#a9745b" />
       </View>
@@ -65,15 +78,11 @@ export default function AppNavigator() {
   return (
     <NavigationContainer theme={DarkTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!isAuthenticated ? (
-          // Auth stack
-          <>
-            <Stack.Screen name="Intro" component={IntroScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-          </>
-        ) : (
-          // App stack
+        {showIntro ? (
+          // Always show Intro first
+          <Stack.Screen name="Intro" component={IntroScreen} />
+        ) : isAuthenticated ? (
+          // Logged in → go to main app
           <>
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen
@@ -83,6 +92,12 @@ export default function AppNavigator() {
                 title: route.params?.product?.name || 'Details',
               })}
             />
+          </>
+        ) : (
+          // Not logged in → show login/sign up flow
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
           </>
         )}
       </Stack.Navigator>
