@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
   const { user, logout, isLoading } = useAuth();
+  const navigation = useNavigation();
 
   const handleLogout = () => {
     Alert.alert(
@@ -15,10 +17,8 @@ export default function ProfileScreen() {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
-            const result = await logout();
-            if (result.success) {
-              // Navigation will be handled automatically by AppNavigator
-            }
+            await logout();
+            // Navigation handled by AppNavigator/context
           },
         },
       ]
@@ -28,7 +28,7 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile</Text>
-      
+
       {/* Profile Avatar */}
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
@@ -46,7 +46,6 @@ export default function ProfileScreen() {
               <Text style={styles.value}>{user.name}</Text>
             </View>
           </View>
-
           <View style={styles.infoRow}>
             <Ionicons name="mail-outline" size={20} color="#a9745b" />
             <View style={styles.infoContent}>
@@ -54,7 +53,6 @@ export default function ProfileScreen() {
               <Text style={styles.value}>{user.email}</Text>
             </View>
           </View>
-
           <View style={styles.infoRow}>
             <Ionicons name="calendar-outline" size={20} color="#a9745b" />
             <View style={styles.infoContent}>
@@ -67,30 +65,43 @@ export default function ProfileScreen() {
         </View>
       )}
 
-      {/* Menu Options */}
+      {/* Main Menu Options */}
       <View style={styles.menuContainer}>
-        <TouchableOpacity style={styles.menuItem}>
+        {/* Conditional button for Order History or Admin Dashboard */}
+        {user && user.role === 'admin' ? (
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('AdminDashboard')}
+          >
+            <Ionicons name="lock-closed-outline" size={20} color="#a9745b" />
+            <Text style={styles.menuText}>Admin Dashboard</Text>
+            <Ionicons name="chevron-forward" size={20} color="#888" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('OrderHistory')}
+          >
+            <Ionicons name="reader-outline" size={20} color="#a9745b" />
+            <Text style={styles.menuText}>Order History</Text>
+            <Ionicons name="chevron-forward" size={20} color="#888" />
+          </TouchableOpacity>
+        )}
+
+        {/* Settings menu - common for all */}
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Settings')}
+        >
           <Ionicons name="settings-outline" size={20} color="#a9745b" />
           <Text style={styles.menuText}>Settings</Text>
-          <Ionicons name="chevron-forward" size={20} color="#888" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem}>
-          <Ionicons name="help-circle-outline" size={20} color="#a9745b" />
-          <Text style={styles.menuText}>Help & Support</Text>
-          <Ionicons name="chevron-forward" size={20} color="#888" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem}>
-          <Ionicons name="information-circle-outline" size={20} color="#a9745b" />
-          <Text style={styles.menuText}>About</Text>
           <Ionicons name="chevron-forward" size={20} color="#888" />
         </TouchableOpacity>
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity 
-        style={styles.logoutButton} 
+      <TouchableOpacity
+        style={styles.logoutButton}
         onPress={handleLogout}
         disabled={isLoading}
       >

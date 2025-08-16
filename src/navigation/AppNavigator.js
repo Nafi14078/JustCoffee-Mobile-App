@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
@@ -14,10 +14,14 @@ import ProductDetailsScreen from '../screens/ProductDetailsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 
+import AdminDashboard from '../screens/AdminDashboard';
+import OrderHistory from '../screens/OrderHistory';
+import SettingsScreen from '../screens/SettingsScreen';
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-/** -------- BOTTOM TABS -------- **/
+/** -------- BOTTOM TABS -------- */
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -45,7 +49,7 @@ function MainTabs() {
   );
 }
 
-/** -------- MAIN APP NAVIGATOR -------- **/
+/** -------- MAIN APP NAVIGATOR -------- */
 export default function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -53,7 +57,7 @@ export default function AppNavigator() {
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
-    // Auto-hide intro screen after 2.5 seconds
+    // Auto-hide intro screen after 3 seconds
     const timer = setTimeout(() => {
       setShowIntro(false);
     }, 3000);
@@ -92,6 +96,9 @@ export default function AppNavigator() {
                 title: route.params?.product?.name || 'Details',
               })}
             />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+            <Stack.Screen name="OrderHistory" component={OrderHistory} />
           </>
         ) : (
           // Not logged in → show login/sign up flow
