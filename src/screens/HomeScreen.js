@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, ScrollView, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavigation } from '@react-navigation/native';
-
-import ProductCard from '../components/ProductCard';
 import BeanCard from '../components/BeanCard';
+import ProductCard from '../components/ProductCard';
+import productService from '../services/productService'; // Import your product service
 
 // Images
 const userIcon = require('../../assets/images/user.jpg');
@@ -16,57 +16,69 @@ const categories = [
   'All', 'Cappuccino', 'Espresso', 'Americano', 'Macchiato'
 ];
 
-const products = [
-  {
-    id: 1,
-    name: 'Cappuccino',
-    desc: 'With Steamed Milk',
-    image: require('../../assets/images/coffee1.jpg'),
-    price: 4.20,
-    rating: 4.5,
-  },
-  {
-    id: 2,
-    name: 'Cappuccino',
-    desc: 'With Foam',
-    image: require('../../assets/images/coffee2.jpg'),
-    price: 4.20,
-    rating: 4.2,
-  },
-  // Add more items...
-];
-
-const beans = [
-  {
-    id: 1,
-    name: 'Robusta Beans',
-    desc: 'Medium Roasted',
-    image: require('../../assets/images/robusta_coffee_beans_square.png'),
-    price: 4.50,
-    rating: 4.6,
-  },
-  {
-    id: 2,
-    name: 'Arabica Beans',
-    desc: 'Light Roasted',
-    image: require('../../assets/images/arabica_coffee_beans_square.png'),
-    price: 5.20,
-    rating: 4.8,
-  },
-  // Add more beans...
-];
+// Remove the static products array - we'll fetch from API
 
 export default function HomeScreen({ navigation }) {
-  // If navigation isn't passed (sometimes with custom hooks), get it:
   const nav = navigation || useNavigation();
-
   const [activeCategory, setActiveCategory] = useState('All');
   const [search, setSearch] = useState('');
+  const [products, setProducts] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch products from API
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const productsData = await productService.getAll();
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      Alert.alert('Error', 'Failed to load products');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  // Load products when screen focuses (e.g., when returning from ProductCreate)
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProducts();
+    }, [])
+  );
+
+  // Pull to refresh functionality
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchProducts();
+  }, []);
+
+  // Filter products based on category and search
   const filteredProducts = products.filter(p =>
-    (activeCategory === 'All' || p.name === activeCategory) &&
+    (activeCategory === 'All' || p.category === activeCategory) &&
     (search.length === 0 || p.name.toLowerCase().includes(search.toLowerCase()))
   );
+
+  // Keep your beans static or fetch them from API if needed
+  const beans = [
+    {
+      id: 1,
+      name: 'Robusta Beans',
+      desc: 'Medium Roasted',
+      image: require('../../assets/images/robusta_coffee_beans_square.png'),
+      price: 4.50,
+      rating: 4.6,
+    },
+    {
+      id: 2,
+      name: 'Arabica Beans',
+      desc: 'Light Roasted',
+      image: require('../../assets/images/arabica_coffee_beans_square.png'),
+      price: 5.20,
+      rating: 4.8,
+    },
+  ];
 
   const handleAddProduct = (product) => {
     // For add-to-cart on product
@@ -78,7 +90,13 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView style={styles.container} contentContainerStyle={{paddingBottom: 30}}>
+      <ScrollView 
+        style={styles.container} 
+        contentContainerStyle={{paddingBottom: 30}}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {/* Top Header Icons */}
         <View style={styles.topHeader}>
           <TouchableOpacity style={styles.iconButton}>
@@ -133,20 +151,34 @@ export default function HomeScreen({ navigation }) {
         </ScrollView>
 
         {/* Products */}
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={filteredProducts}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({ item }) => (
-            <ProductCard 
-              product={item}
-              onPress={() => nav.navigate('ProductDetails', { product: item })}
-            />
-          )}
-          style={{ marginTop: 5, marginBottom: 35 }}
-          contentContainerStyle={{ paddingLeft: 2 }}
-        />
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading products...</Text>
+          </View>
+        ) : filteredProducts.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="cafe-outline" size={50} color="#a9745b" />
+            <Text style={styles.emptyText}>No products found</Text>
+            <Text style={styles.emptySubtext}>
+              {search.length > 0 ? 'Try a different search term' : 'Create your first product'}
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={filteredProducts}
+            keyExtractor={item => item._id || item.id.toString()}
+            renderItem={({ item }) => (
+              <ProductCard 
+                product={item}
+                onPress={() => nav.navigate('ProductDetails', { product: item })}
+              />
+            )}
+            style={{ marginTop: 5, marginBottom: 35 }}
+            contentContainerStyle={{ paddingLeft: 2 }}
+          />
+        )}
 
         {/* Coffee Beans */}
         <Text style={styles.sectionHeading}>Coffee beans</Text>
@@ -180,7 +212,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#18181A',
     paddingHorizontal: 18,
-    // removed paddingTop; SafeAreaView handles it!
   },
   topHeader: {
     flexDirection: 'row',
@@ -244,69 +275,6 @@ const styles = StyleSheet.create({
   activeCategoryTab: {
     backgroundColor: '#23232b',
   },
-  bigProductCard: {
-    width: 170,
-    backgroundColor: '#23232b',
-    borderRadius: 22,
-    marginRight: 18,
-    paddingBottom: 12,
-    paddingTop: 1,
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  bigProductImage: {
-    width: 170,
-    height: 120,
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
-  },
-  productName: {
-    fontFamily: 'OpenSans-Bold',
-    color: '#fff',
-    fontSize: 18,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  productDesc: {
-    color: '#bdbdbd',
-    fontFamily: 'OpenSans-Regular',
-    fontSize: 13,
-    marginTop: 4,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  cardFooter: {
-    width: '90%',
-    alignSelf: 'center',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  ratingText: {
-    marginLeft: 3,
-    color: '#a9745b',
-    fontFamily: 'OpenSans-Regular',
-    fontSize: 14,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
-    justifyContent: 'space-between'
-  },
-  productPrice: {
-    color: '#a9745b',
-    fontFamily: 'OpenSans-Bold',
-    fontSize: 16,
-    marginRight: 7,
-  },
-  addBtn: {
-    backgroundColor: '#a9745b',
-    padding: 7,
-    borderRadius: 8,
-    marginLeft: 7,
-  },
   sectionHeading: {
     color: '#fff',
     fontSize: 18,
@@ -314,5 +282,32 @@ const styles = StyleSheet.create({
     marginTop: 6,
     marginBottom: 10,
     marginLeft: 2,
+  },
+  loadingContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#a9745b',
+    fontSize: 16,
+  },
+  emptyContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  emptyText: {
+    color: '#fff',
+    fontSize: 18,
+    marginTop: 10,
+    fontFamily: 'OpenSans-Bold',
+  },
+  emptySubtext: {
+    color: '#888',
+    fontSize: 14,
+    marginTop: 5,
+    fontFamily: 'OpenSans-Regular',
   },
 });
