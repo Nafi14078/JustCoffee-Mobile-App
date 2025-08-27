@@ -17,7 +17,12 @@ import SignUpScreen from '../screens/SignUpScreen';
 import AdminDashboard from '../screens/AdminDashboard';
 import OrderHistory from '../screens/OrderHistory';
 import ProductCreate from '../screens/ProductCreate';
+import ProductListScreen from '../screens/ProductListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import ViewAllUsersScreen from '../screens/ViewAllUsersScreen';
+import ViewEditProductsScreen from '../screens/ViewEditProductsScreen';
+import ViewOrdersScreen from '../screens/ViewOrdersScreen';
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -99,6 +104,13 @@ export default function AppNavigator() {
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
             <Stack.Screen name="ProductCreate" component={ProductCreate} />
+            <Stack.Screen name="ViewEditProducts" component={ViewEditProductsScreen} />
+            <Stack.Screen name="ProductList" component={ProductListScreen} />
+
+            {/* ✅ Updated to match your navigation calls */}
+            <Stack.Screen name="UsersList" component={ViewAllUsersScreen} />
+            <Stack.Screen name="OrdersList" component={ViewOrdersScreen} />
+
             <Stack.Screen name="OrderHistory" component={OrderHistory} />
           </>
         ) : (
