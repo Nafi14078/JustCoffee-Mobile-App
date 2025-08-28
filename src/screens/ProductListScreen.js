@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -7,11 +7,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  ScrollView,
+  View
 } from 'react-native';
 
-const API_BASE_URL = 'http://10.253.160.115:5000/api'; // Your API base
+const API_BASE_URL = 'http://10.183.115.115:5000/api'; // Your API base
 
 const ProductListScreen = () => {
   const navigation = useNavigation();

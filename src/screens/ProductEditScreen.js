@@ -8,7 +8,8 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput
+  TextInput,
+  View,
 } from 'react-native';
 import productService from '../services/productService';
 
@@ -19,6 +20,7 @@ export default function ProductEditScreen() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -30,7 +32,6 @@ export default function ProductEditScreen() {
   const [roastLevel, setRoastLevel] = useState('');
   const [imageUrl, setImageUrl] = useState('');
 
-  // Fetch existing product details
   useEffect(() => {
     async function fetchProduct() {
       setLoading(true);
@@ -61,7 +62,6 @@ export default function ProductEditScreen() {
     fetchProduct();
   }, [productId]);
 
-  // Save updates to backend
   const handleSave = async () => {
     const updatedProduct = {
       name,
@@ -85,6 +85,33 @@ export default function ProductEditScreen() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this product?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await productService.remove(productId);
+              Alert.alert('Deleted', 'Product deleted successfully!');
+              navigation.goBack();
+            } catch (error) {
+              Alert.alert('Error', error.message);
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   if (loading) {
@@ -160,7 +187,16 @@ export default function ProductEditScreen() {
       />
       {imageUrl ? <Image source={{ uri: imageUrl }} style={styles.previewImage} /> : null}
 
-      <Button title={saving ? 'Saving...' : 'Save Changes'} onPress={handleSave} disabled={saving} />
+      <Button title={saving ? 'Saving...' : 'Save Changes'} onPress={handleSave} disabled={saving}></Button>
+
+      <View style={{ marginTop: 20 }}>
+        <Button
+          title={deleting ? 'Deleting...' : 'Delete Product'}
+          onPress={handleDelete}
+          disabled={deleting}
+          color="red"
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -169,7 +205,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     paddingBottom: 50,
-    paddingTop: 50,
+    paddingTop: 40,
     backgroundColor: '#1E1E1E',
   },
   label: {

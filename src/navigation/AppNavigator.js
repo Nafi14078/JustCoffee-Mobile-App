@@ -15,12 +15,12 @@ import ProfileScreen from '../screens/ProfileScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 
 import AdminDashboard from '../screens/AdminDashboard';
+import AllUsersScreen from '../screens/AllUsersScreen';
 import OrderHistory from '../screens/OrderHistory';
 import ProductCreate from '../screens/ProductCreate';
 import ProductEditScreen from '../screens/ProductEditScreen';
 import ProductListScreen from '../screens/ProductListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import ViewAllUsersScreen from '../screens/ViewAllUsersScreen';
 import ViewOrdersScreen from '../screens/ViewOrdersScreen';
 
 const Stack = createStackNavigator();
@@ -108,8 +108,10 @@ export default function AppNavigator() {
             <Stack.Screen name="ProductEdit" component={ProductEditScreen} />
 
             {/* ✅ Updated to match your navigation calls */}
-            <Stack.Screen name="UsersList" component={ViewAllUsersScreen} />
+            
             <Stack.Screen name="OrdersList" component={ViewOrdersScreen} />
+            <Stack.Screen name="UsersList" component={AllUsersScreen} />
+            {/* ------------------------------- */}
 
             <Stack.Screen name="OrderHistory" component={OrderHistory} />
           </>

@@ -26,10 +26,10 @@ export default function AdminDashboard() {
         <Text style={styles.buttonText}>View / Edit Products</Text>
       </TouchableOpacity>
 
-      {/* Placeholder: Users */}
+      {/* View All Users button */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('UsersList')}
+        onPress={() => navigation.navigate('UsersList')}  // Ensure this matches your navigator
       >
         <Ionicons name="people" size={24} color="#fff" />
         <Text style={styles.buttonText}>View All Users</Text>
