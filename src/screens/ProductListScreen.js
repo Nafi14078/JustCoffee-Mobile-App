@@ -1,52 +1,66 @@
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ScrollView,
 } from 'react-native';
-import { API_BASE_URL } from '../config';
+
+const API_BASE_URL = 'http://10.253.160.115:5000/api'; // Your API base
 
 const ProductListScreen = () => {
+  const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation();
-
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/products`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setProducts(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/products`);
+        const data = await response.json();
+        setProducts(data); // Assuming your API returns an array of products
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchProducts();
   }, []);
 
+  // Display all model attributes
   const renderProductItem = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.productCard}
-      onPress={() => navigation.navigate('ProductDetails', { product: item })}
+      onPress={() => navigation.navigate('ProductEdit', { productId: item._id })}
     >
-      <Image 
-        source={{ uri: item.image }} 
-        style={styles.productImage}
-      />
+      {item.imageUrl ? (
+        <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
+      ) : null}
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>${item.price}</Text>
+        {item.description ? (
+          <Text style={styles.productDescription}>Description: {item.description}</Text>
+        ) : null}
+        <Text style={styles.productPrice}>Price: ${item.price?.toFixed(2)}</Text>
+        {item.sizeOptions && item.sizeOptions.length > 0 ? (
+          <Text style={styles.productSubtext}>Sizes: {item.sizeOptions.join(', ')}</Text>
+        ) : null}
+        {item.ingredients && item.ingredients.length > 0 ? (
+          <Text style={styles.productSubtext}>Ingredients: {item.ingredients.join(', ')}</Text>
+        ) : null}
+        {item.roastLevel ? (
+          <Text style={styles.productSubtext}>Roast Level: {item.roastLevel}</Text>
+        ) : null}
+        <Text style={styles.productSubtext}>Rating: {item.rating} ({item.ratingCount} reviews)</Text>
+        {item.createdAt ? (
+          <Text style={styles.productSubtext}>Created: {new Date(item.createdAt).toLocaleString()}</Text>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
@@ -63,17 +77,21 @@ const ProductListScreen = () => {
     <View style={styles.container}>
       <FlatList
         data={products}
+        keyExtractor={(item) => item._id}
         renderItem={renderProductItem}
-        keyExtractor={item => item._id}
         contentContainerStyle={styles.listContent}
       />
     </View>
   );
 };
 
+export default ProductListScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 30,
+    paddingBottom: 50,
     backgroundColor: '#1E1E1E',
   },
   centerContainer: {
@@ -90,6 +108,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 16,
     padding: 16,
+    alignItems: 'center',
   },
   productImage: {
     width: 80,
@@ -98,7 +117,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   productInfo: {
-    justifyContent: 'center',
+    flex: 1,
   },
   productName: {
     fontSize: 18,
@@ -106,11 +125,19 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 4,
   },
+  productDescription: {
+    color: '#ccc',
+    marginBottom: 4,
+  },
   productPrice: {
     fontSize: 16,
     color: '#a9745b',
     fontWeight: '600',
+    marginBottom: 4,
+  },
+  productSubtext: {
+    color: '#aaa',
+    fontSize: 14,
+    marginBottom: 2,
   },
 });
-
-export default ProductListScreen;

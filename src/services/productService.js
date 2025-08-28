@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_URL = 'http://192.168.0.244:5001/api/products';
+const API_URL = 'http://10.253.160.115:5000/api/products';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -9,27 +9,36 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Add a request interceptor to include JWT token in headers
+api.interceptors.request.use(
+  async (config) => {
+    const token = await AsyncStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 class ProductService {
   async getAll() {
     const res = await api.get('/');
     return res.data;
   }
+
   async create(product) {
     const res = await api.post('/', product);
     return res.data;
   }
+
   async update(id, product) {
     const res = await api.put(`/${id}`, product);
     return res.data;
   }
+
   async remove(id) {
     const res = await api.delete(`/${id}`);
     return res.data;
