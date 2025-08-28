@@ -1,7 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import BeanCard from '../components/BeanCard';
@@ -13,13 +24,12 @@ const userIcon = require('../../assets/images/user.jpg');
 const burgerIcon = 'menu';
 
 const categories = [
-  'All', 'Cappuccino', 'Espresso', 'Americano', 'Macchiato'
+  'All', 'Cappuccino', 'Espresso', 'Americano', 'Macchiato',
 ];
-
-// Remove the static products array - we'll fetch from API
 
 export default function HomeScreen({ navigation }) {
   const nav = navigation || useNavigation();
+
   const [activeCategory, setActiveCategory] = useState('All');
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState([]);
@@ -54,7 +64,7 @@ export default function HomeScreen({ navigation }) {
     fetchProducts();
   }, []);
 
-  // Filter products based on category and search
+  // Filter products based on category and search by product title (name)
   const filteredProducts = products.filter(p =>
     (activeCategory === 'All' || p.category === activeCategory) &&
     (search.length === 0 || p.name.toLowerCase().includes(search.toLowerCase()))
@@ -89,18 +99,13 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView 
-        style={styles.container} 
-        contentContainerStyle={{paddingBottom: 30}}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+
         {/* Top Header Icons */}
         <View style={styles.topHeader}>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name={burgerIcon} size={28} color="white" />
+            <Ionicons name={burgerIcon} size={28} color="#fff" />
           </TouchableOpacity>
           <View style={{ flex: 1 }} />
           <TouchableOpacity style={styles.iconButton}>
@@ -110,42 +115,38 @@ export default function HomeScreen({ navigation }) {
 
         {/* Heading */}
         <View style={styles.header}>
-          <Text style={styles.heading}>
-            Find the best{'\n'}coffee for you
-          </Text>
+          <Text style={styles.heading}>Find the best{'\n'}coffee for you</Text>
         </View>
 
         {/* Search Bar */}
         <View style={styles.searchBar}>
-          <Ionicons name="ios-search" size={20} color="#888" />
+          <Ionicons name="search" size={20} color="#888" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Find Your Coffee..."
+            placeholder="Search"
             placeholderTextColor="#888"
             value={search}
-            onChangeText={setSearch}
+            onChangeText={text => setSearch(text)}
+            clearButtonMode="while-editing"
           />
         </View>
 
         {/* Categories Tabs */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryContainer}
+        >
           {categories.map(category => (
             <TouchableOpacity
               key={category}
               style={[
                 styles.categoryTab,
-                activeCategory === category && styles.activeCategoryTab
+                activeCategory === category && styles.activeCategoryTab,
               ]}
               onPress={() => setActiveCategory(category)}
             >
-              <Text
-                style={{
-                  color: activeCategory === category ? '#a9745b' : '#fff',
-                  fontFamily: activeCategory === category ? 'OpenSans-Bold' : 'OpenSans-Regular'
-                }}
-              >
-                {category}
-              </Text>
+              <Text style={{ color: 'white', fontFamily: 'OpenSans-Bold' }}>{category}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -157,7 +158,6 @@ export default function HomeScreen({ navigation }) {
           </View>
         ) : filteredProducts.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="cafe-outline" size={50} color="#a9745b" />
             <Text style={styles.emptyText}>No products found</Text>
             <Text style={styles.emptySubtext}>
               {search.length > 0 ? 'Try a different search term' : 'Create your first product'}
@@ -165,40 +165,38 @@ export default function HomeScreen({ navigation }) {
           </View>
         ) : (
           <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
             data={filteredProducts}
             keyExtractor={item => item._id || item.id.toString()}
             renderItem={({ item }) => (
-              <ProductCard 
+              <ProductCard
                 product={item}
                 onPress={() => nav.navigate('ProductDetails', { product: item })}
+                onAdd={() => handleAddProduct(item)}
               />
             )}
             style={{ marginTop: 5, marginBottom: 35 }}
             contentContainerStyle={{ paddingLeft: 2 }}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           />
         )}
 
         {/* Coffee Beans */}
         <Text style={styles.sectionHeading}>Coffee beans</Text>
         <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
           data={beans}
           keyExtractor={item => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => (
-            <BeanCard 
-              bean={item} 
-              onPressAdd={handleAddBean}
+            <BeanCard
+              bean={item}
               onPress={() => nav.navigate('BeanDetails', { bean: item })}
+              onAdd={() => handleAddBean(item)}
             />
           )}
           contentContainerStyle={{ paddingBottom: 16 }}
         />
-
-        <View style={{ height: 40 }} />
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
