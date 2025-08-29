@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native';
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const API_BASE_URL = 'http://10.183.115.115:5000/api/users'; // Your users API endpoint
+// 🔹 Replace with your server IP and port
+const API_BASE_URL = "http://192.168.0.103:5000/api/users";
 
 export default function AllUsersScreen() {
   const [users, setUsers] = useState([]);
@@ -18,20 +22,43 @@ export default function AllUsersScreen() {
   // Fetch users from API
   const fetchUsers = async () => {
     try {
-      const response = await fetch(API_BASE_URL);
+      // Get token from AsyncStorage
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found in storage");
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+
+      const response = await fetch(API_BASE_URL, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
       const data = await response.json();
-      setUsers(data); // expect array of users
+      setUsers(data); // Expecting an array of { name, email }
     } catch (error) {
-      console.error('Failed to fetch users', error);
+      console.error("Failed to fetch users", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  // Load when screen is focused (so it updates dynamically)
+  useFocusEffect(
+    useCallback(() => {
+      fetchUsers();
+    }, [])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -48,63 +75,76 @@ export default function AllUsersScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#a9745b" />
-      </View>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color="#a9745b" />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header row */}
-      <View style={[styles.row, styles.headerRow]}>
-        <Text style={[styles.cell, styles.cellIndex, styles.headerCell]}>#</Text>
-        <Text style={[styles.cell, styles.cellName, styles.headerCell]}>Name</Text>
-        <Text style={[styles.cell, styles.cellEmail, styles.headerCell]}>Email</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* Header row */}
+        <View style={[styles.row, styles.headerRow]}>
+          <Text style={[styles.cell, styles.cellIndex, styles.headerCell]}>#</Text>
+          <Text style={[styles.cell, styles.cellName, styles.headerCell]}>Name</Text>
+          <Text style={[styles.cell, styles.cellEmail, styles.headerCell]}>Email</Text>
+        </View>
 
-      {/* Users list */}
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item._id}
-        renderItem={renderItem}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      />
-    </View>
+        {/* Users list */}
+        {users.length === 0 ? (
+          <View style={styles.loader}>
+            <Text style={{ color: "#aaa" }}>No users found.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={users}
+            keyExtractor={(item) => item._id}
+            renderItem={renderItem}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#1E1E1E",
+  },
   container: {
     flex: 1,
-    backgroundColor: '#1E1E1E',
     padding: 16,
   },
   loader: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderBottomWidth: 1,
-    borderColor: '#444',
+    borderColor: "#444",
   },
   rowAlt: {
-    backgroundColor: '#2c2c2c',
+    backgroundColor: "#2c2c2c",
   },
   headerRow: {
     borderBottomWidth: 2,
-    borderColor: '#a9745b',
+    borderColor: "#a9745b",
   },
   headerCell: {
-    fontWeight: 'bold',
-    color: '#a9745b',
+    fontWeight: "bold",
+    color: "#a9745b",
   },
   cell: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
   },
   cellIndex: {

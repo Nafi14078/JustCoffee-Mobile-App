@@ -23,9 +23,7 @@ import productService from '../services/productService'; // Import your product 
 const userIcon = require('../../assets/images/user.jpg');
 const burgerIcon = 'menu';
 
-const categories = [
-  'All', 'Cappuccino', 'Espresso', 'Americano', 'Macchiato',
-];
+const categories = ['All', 'Cappuccino', 'Espresso', 'Americano', 'Macchiato'];
 
 export default function HomeScreen({ navigation }) {
   const nav = navigation || useNavigation();
@@ -51,33 +49,34 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  // Load products when screen focuses (e.g., when returning from ProductCreate)
+  // Load products when screen focuses (e.g., return from ProductCreate)
   useFocusEffect(
     React.useCallback(() => {
       fetchProducts();
     }, [])
   );
 
-  // Pull to refresh functionality
+  // Pull to refresh function
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     fetchProducts();
   }, []);
 
-  // Filter products based on category and search by product title (name)
-  const filteredProducts = products.filter(p =>
-    (activeCategory === 'All' || p.category === activeCategory) &&
-    (search.length === 0 || p.name.toLowerCase().includes(search.toLowerCase()))
+  // Filter products by category and search term (product title)
+  const filteredProducts = products.filter(
+    p =>
+      (activeCategory === 'All' || p.category === activeCategory) &&
+      (search.length === 0 || p.name.toLowerCase().includes(search.toLowerCase()))
   );
 
-  // Keep your beans static or fetch them from API if needed
+  // Static coffee beans
   const beans = [
     {
       id: 1,
       name: 'Robusta Beans',
       desc: 'Medium Roasted',
       image: require('../../assets/images/robusta_coffee_beans_square.png'),
-      price: 4.50,
+      price: 4.5,
       rating: 4.6,
     },
     {
@@ -85,27 +84,30 @@ export default function HomeScreen({ navigation }) {
       name: 'Arabica Beans',
       desc: 'Light Roasted',
       image: require('../../assets/images/arabica_coffee_beans_square.png'),
-      price: 5.20,
+      price: 5.2,
       rating: 4.8,
     },
   ];
 
-  const handleAddProduct = (product) => {
-    // For add-to-cart on product
+  const handleAddProduct = product => {
+    // Add-to-cart logic here
   };
 
-  const handleAddBean = (bean) => {
-    // For add-to-cart on bean
+  const handleAddBean = bean => {
+    // Add-to-cart logic here
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ paddingBottom: 30 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {/* Top Header Icons */}
         <View style={styles.topHeader}>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name={burgerIcon} size={28} color="#fff" />
+            <Ionicons name={burgerIcon} size={28} color="white" />
           </TouchableOpacity>
           <View style={{ flex: 1 }} />
           <TouchableOpacity style={styles.iconButton}>
@@ -120,44 +122,46 @@ export default function HomeScreen({ navigation }) {
 
         {/* Search Bar */}
         <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#888" />
+          <Ionicons name="ios-search" size={20} color="#888" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search"
+            placeholder="Find Your Coffee..."
             placeholderTextColor="#888"
             value={search}
-            onChangeText={text => setSearch(text)}
+            onChangeText={setSearch}
+            returnKeyType="search"
             clearButtonMode="while-editing"
           />
         </View>
 
         {/* Categories Tabs */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryContainer}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryContainer}>
           {categories.map(category => (
             <TouchableOpacity
               key={category}
-              style={[
-                styles.categoryTab,
-                activeCategory === category && styles.activeCategoryTab,
-              ]}
+              style={[styles.categoryTab, activeCategory === category && styles.activeCategoryTab]}
               onPress={() => setActiveCategory(category)}
             >
-              <Text style={{ color: 'white', fontFamily: 'OpenSans-Bold' }}>{category}</Text>
+              <Text
+                style={{
+                  color: activeCategory === category ? '#a9745b' : '#fff',
+                  fontFamily: activeCategory === category ? 'OpenSans-Bold' : 'OpenSans-Regular',
+                }}
+              >
+                {category}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        {/* Products */}
+        {/* Products List */}
         {loading ? (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Loading products...</Text>
           </View>
         ) : filteredProducts.length === 0 ? (
           <View style={styles.emptyContainer}>
+            <Ionicons name="cafe-outline" size={50} color="#a9745b" />
             <Text style={styles.emptyText}>No products found</Text>
             <Text style={styles.emptySubtext}>
               {search.length > 0 ? 'Try a different search term' : 'Create your first product'}
@@ -165,38 +169,37 @@ export default function HomeScreen({ navigation }) {
           </View>
         ) : (
           <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
             data={filteredProducts}
             keyExtractor={item => item._id || item.id.toString()}
             renderItem={({ item }) => (
-              <ProductCard
-                product={item}
-                onPress={() => nav.navigate('ProductDetails', { product: item })}
-                onAdd={() => handleAddProduct(item)}
-              />
+              <ProductCard product={item} onPress={() => nav.navigate('ProductDetails', { product: item })} />
             )}
             style={{ marginTop: 5, marginBottom: 35 }}
             contentContainerStyle={{ paddingLeft: 2 }}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           />
         )}
 
-        {/* Coffee Beans */}
+        {/* Coffee Beans Section */}
         <Text style={styles.sectionHeading}>Coffee beans</Text>
         <FlatList
-          data={beans}
-          keyExtractor={item => item.id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
+          data={beans}
+          keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
             <BeanCard
               bean={item}
+              onPressAdd={handleAddBean}
               onPress={() => nav.navigate('BeanDetails', { bean: item })}
-              onAdd={() => handleAddBean(item)}
             />
           )}
           contentContainerStyle={{ paddingBottom: 16 }}
         />
-      </View>
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
     </SafeAreaView>
   );
 }

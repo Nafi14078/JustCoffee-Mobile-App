@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { protect, isAdmin } = require('../middleware/auth');
+
+const { protect } = require('../middleware/auth');
+const { isAdmin } = require('../middleware/isAdmin');
 
 // GET /api/users - list all users (Admin only, protected route)
 router.get('/', protect, isAdmin, async (req, res) => {
