@@ -3,6 +3,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
   Alert,
+  Dimensions,
   FlatList,
   Image,
   RefreshControl,
@@ -15,15 +16,19 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import BeanCard from '../components/BeanCard';
 import ProductCard from '../components/ProductCard';
 import productService from '../services/productService'; // Import your product service
+
+// Get screen width for responsive layout
+const { width } = Dimensions.get('window');
+const CARD_MARGIN = 8;
+const CARD_WIDTH = (width - 36 - CARD_MARGIN * 2) / 2; // 36 is total horizontal padding
 
 // Images
 const userIcon = require('../../assets/images/user.jpg');
 const burgerIcon = 'menu';
 
-const categories = ['All', 'Cappuccino', 'Espresso', 'Americano', 'Macchiato'];
+const categories = ['All', 'Cappuccino', 'Espresso', 'Americano', 'Macchiato', 'Beans'];
 
 export default function HomeScreen({ navigation }) {
   const nav = navigation || useNavigation();
@@ -62,39 +67,57 @@ export default function HomeScreen({ navigation }) {
     fetchProducts();
   }, []);
 
-  // Filter products by category and search term (product title)
-  const filteredProducts = products.filter(
-    p =>
-      (activeCategory === 'All' || p.category === activeCategory) &&
-      (search.length === 0 || p.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  // Function to categorize products based on title
+  const categorizeProductByTitle = (product) => {
+    const title = product.name.toLowerCase();
+    
+    // Check if any category name is included in the product title
+    for (const category of categories) {
+      if (category !== 'All' && title.includes(category.toLowerCase())) {
+        return category;
+      }
+    }
+    
+    // If no category found in title, return a default or the product's existing category
+    return product.category || 'All';
+  };
 
-  // Static coffee beans
-  const beans = [
-    {
-      id: 1,
-      name: 'Robusta Beans',
-      desc: 'Medium Roasted',
-      image: require('../../assets/images/robusta_coffee_beans_square.png'),
-      price: 4.5,
-      rating: 4.6,
-    },
-    {
-      id: 2,
-      name: 'Arabica Beans',
-      desc: 'Light Roasted',
-      image: require('../../assets/images/arabica_coffee_beans_square.png'),
-      price: 5.2,
-      rating: 4.8,
-    },
-  ];
+  // Filter products by category and search term
+  const filteredProducts = products.filter(p => {
+    // First check if product matches search term
+    const matchesSearch = search.length === 0 || 
+                         p.name.toLowerCase().includes(search.toLowerCase());
+    
+    // If "All" category is selected, only apply search filter
+    if (activeCategory === 'All') {
+      return matchesSearch;
+    }
+    
+    // For specific categories, check if category is in title or product category
+    const productCategory = categorizeProductByTitle(p);
+    return matchesSearch && productCategory === activeCategory;
+  });
 
   const handleAddProduct = product => {
     // Add-to-cart logic here
   };
 
-  const handleAddBean = bean => {
-    // Add-to-cart logic here
+  // Render each product item in grid
+  const renderProductItem = ({ item, index }) => {
+    return (
+      <View 
+        style={[
+          styles.productCardContainer, 
+          index % 2 === 0 ? styles.leftCard : styles.rightCard
+        ]}
+      >
+        <ProductCard 
+          product={item} 
+          onPress={() => nav.navigate('ProductDetails', { product: item })}
+          style={styles.productCard}
+        />
+      </View>
+    );
   };
 
   return (
@@ -154,7 +177,7 @@ export default function HomeScreen({ navigation }) {
           ))}
         </ScrollView>
 
-        {/* Products List */}
+        {/* Products Grid */}
         {loading ? (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Loading products...</Text>
@@ -164,39 +187,21 @@ export default function HomeScreen({ navigation }) {
             <Ionicons name="cafe-outline" size={50} color="#a9745b" />
             <Text style={styles.emptyText}>No products found</Text>
             <Text style={styles.emptySubtext}>
-              {search.length > 0 ? 'Try a different search term' : 'Create your first product'}
+              {search.length > 0 
+                ? 'Try a different search term' 
+                : `No products found in ${activeCategory} category`}
             </Text>
           </View>
         ) : (
           <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
             data={filteredProducts}
+            numColumns={2}
             keyExtractor={item => item._id || item.id.toString()}
-            renderItem={({ item }) => (
-              <ProductCard product={item} onPress={() => nav.navigate('ProductDetails', { product: item })} />
-            )}
-            style={{ marginTop: 5, marginBottom: 35 }}
-            contentContainerStyle={{ paddingLeft: 2 }}
+            renderItem={renderProductItem}
+            style={styles.productsGrid}
+            scrollEnabled={false} // Disable internal scrolling since it's inside a ScrollView
           />
         )}
-
-        {/* Coffee Beans Section */}
-        <Text style={styles.sectionHeading}>Coffee beans</Text>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={beans}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({ item }) => (
-            <BeanCard
-              bean={item}
-              onPressAdd={handleAddBean}
-              onPress={() => nav.navigate('BeanDetails', { bean: item })}
-            />
-          )}
-          contentContainerStyle={{ paddingBottom: 16 }}
-        />
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -276,13 +281,22 @@ const styles = StyleSheet.create({
   activeCategoryTab: {
     backgroundColor: '#23232b',
   },
-  sectionHeading: {
-    color: '#fff',
-    fontSize: 18,
-    fontFamily: 'OpenSans-Bold',
-    marginTop: 6,
-    marginBottom: 10,
-    marginLeft: 2,
+  productsGrid: {
+    marginTop: 5,
+    marginBottom: 35,
+  },
+  productCardContainer: {
+    width: CARD_WIDTH,
+    marginBottom: CARD_MARGIN * 2,
+  },
+  leftCard: {
+    marginRight: CARD_MARGIN,
+  },
+  rightCard: {
+    marginLeft: CARD_MARGIN,
+  },
+  productCard: {
+    width: '100%',
   },
   loadingContainer: {
     height: 200,
