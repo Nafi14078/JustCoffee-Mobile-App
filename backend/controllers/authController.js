@@ -1,26 +1,36 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
-  });
+// Generate JWT Token with role
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, role: user.role }, // Embed id and role
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_EXPIRE,
+    }
+  );
 };
 
-// @desc    Register user
-// @route   POST /api/auth/register
-// @access  Public
+// @desc    Register user (role defaults to 'user' if omitted)
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Validation
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide name, email and password'
+        message: 'Please provide name, email and password',
       });
+    }
+
+    // Restrict role assignment: Only allow 'admin' role if you implement admin-only logic here
+    let userRole = 'user'; // Default
+    if (role === 'admin') {
+      // Optionally, check authorization here before allowing this role
+      // For now, ignore or reject admin role assignment through registration endpoint
+      return res.status(403).json({ success: false, message: 'Cannot register as admin' });
     }
 
     // Check if user already exists
@@ -28,7 +38,7 @@ const register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists with this email'
+        message: 'User already exists with this email',
       });
     }
 
@@ -36,11 +46,12 @@ const register = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password
+      password,
+      role: userRole,
     });
 
-    // Generate token
-    const token = generateToken(user._id);
+    // Generate token with role
+    const token = generateToken(user);
 
     res.status(201).json({
       success: true,
@@ -49,21 +60,20 @@ const register = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
-      }
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: 'Server Error',
     });
   }
 };
 
 // @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -72,7 +82,7 @@ const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: 'Please provide email and password',
       });
     }
 
@@ -81,7 +91,7 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials',
       });
     }
 
@@ -90,12 +100,12 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials',
       });
     }
 
-    // Generate token
-    const token = generateToken(user._id);
+    // Generate token with role
+    const token = generateToken(user);
 
     res.status(200).json({
       success: true,
@@ -104,39 +114,39 @@ const login = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
-      }
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: 'Server Error',
     });
   }
 };
 
 // @desc    Get current user
-// @route   GET /api/auth/me
-// @access  Private
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    
+
     res.status(200).json({
       success: true,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        createdAt: user.createdAt
-      }
+        role: user.role,
+        createdAt: user.createdAt,
+      },
     });
   } catch (error) {
     console.error('Get me error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: 'Server Error',
     });
   }
 };
@@ -144,5 +154,5 @@ const getMe = async (req, res) => {
 module.exports = {
   register,
   login,
-  getMe
+  getMe,
 };

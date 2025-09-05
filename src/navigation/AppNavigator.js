@@ -23,7 +23,7 @@ import AboutScreen from '../screens/AboutScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-/** -------- BOTTOM TABS -------- **/
+/** -------- BOTTOM TABS -------- */
 function MainTabs() {
   const { itemCount } = useCart();
 
@@ -78,11 +78,23 @@ function MainTabs() {
   );
 }
 
-/** -------- MAIN APP NAVIGATOR -------- **/
+/** -------- MAIN APP NAVIGATOR -------- */
 export default function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Show loading screen while checking auth state
+  // New state: controls whether Intro screen is visible
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    // Auto-hide intro screen after 3 seconds
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Loader while checking auth state
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1E1E1E' }}>
@@ -94,15 +106,11 @@ export default function AppNavigator() {
   return (
     <NavigationContainer theme={DarkTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!isAuthenticated ? (
-          // Auth stack
-          <>
-            <Stack.Screen name="Intro" component={IntroScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-          </>
-        ) : (
-          // App stack
+        {showIntro ? (
+          // Always show Intro first
+          <Stack.Screen name="Intro" component={IntroScreen} />
+        ) : isAuthenticated ? (
+          // Logged in → go to main app
           <>
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen

@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const { user, logout, isLoading } = useAuth();
+  const navigation = useNavigation();
 
   const handleLogout = () => {
     Alert.alert(
@@ -18,10 +19,8 @@ export default function ProfileScreen() {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
-            const result = await logout();
-            if (result.success) {
-              // Navigation will be handled automatically by AppNavigator
-            }
+            await logout();
+            // Navigation handled by AppNavigator/context
           },
         },
       ]
@@ -53,6 +52,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Profile</Text>
 
+
       {/* Profile Avatar */}
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
@@ -70,7 +70,6 @@ export default function ProfileScreen() {
               <Text style={styles.value}>{user.name}</Text>
             </View>
           </View>
-
           <View style={styles.infoRow}>
             <Ionicons name="mail-outline" size={20} color="#a9745b" />
             <View style={styles.infoContent}>
@@ -78,7 +77,6 @@ export default function ProfileScreen() {
               <Text style={styles.value}>{user.email}</Text>
             </View>
           </View>
-
           <View style={styles.infoRow}>
             <Ionicons name="calendar-outline" size={20} color="#a9745b" />
             <View style={styles.infoContent}>
@@ -91,7 +89,7 @@ export default function ProfileScreen() {
         </View>
       )}
 
-      {/* Menu Options */}
+      {/* Main Menu Options */}
       <View style={styles.menuContainer}>
         {menuItems.map((item) => (
           <TouchableOpacity

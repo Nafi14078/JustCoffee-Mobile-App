@@ -1,21 +1,63 @@
-import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProductCard({ product, onPress, onPressAdd }) {
-  return (
-    <TouchableOpacity style={styles.card} onPress={() => onPress?.(product)}>
-      {/* IMAGE AT THE TOP */}
-      <Image source={product.image} style={styles.image} />
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
+  // Generate a colored placeholder based on product name
+  const generatePlaceholderColor = (name) => {
+    const colors = ['#3a3a3a', '#4a4a4a', '#5a5a5a', '#6a6a6a'];
+    const index = name.length % colors.length;
+    return colors[index];
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
+      style={styles.card}
+    >
+      {/* IMAGE AT THE TOP WITH LOADING STATE */}
+      <View style={styles.imageContainer}>
+        {imageLoading && !imageError && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="small" color="#a9745b" />
+          </View>
+        )}
+        
+        {imageError || !product.imageUrl ? (
+          <View style={[styles.placeholder, { backgroundColor: generatePlaceholderColor(product.name) }]}>
+            <Ionicons name="cafe-outline" size={40} color="#a9745b" />
+          </View>
+        ) : (
+          <Image 
+            source={{ uri: product.imageUrl }}
+            style={styles.image} 
+            resizeMode="cover"
+            onLoadStart={() => setImageLoading(true)}
+            onLoadEnd={() => setImageLoading(false)}
+            onError={() => {
+              setImageError(true);
+              setImageLoading(false);
+              console.log('Image failed to load:', product.imageUrl);
+            }}
+          />
+        )}
+      </View>
+      
       {/* INFO BLOCK BELOW IMAGE */}
       <View style={styles.info}>
-        <Text style={styles.name}>{product.name}</Text>
-        <Text style={styles.desc}>{product.desc}</Text>
-
+        <Text style={styles.name} numberOfLines={1}>
+          {product.name}
+        </Text>
+        <Text style={styles.desc} numberOfLines={2}>
+          {product.description}
+        </Text>
         <View style={styles.ratingRow}>
           <Ionicons name="star" size={15} color="#a9745b" />
-          <Text style={styles.ratingText}>{product.rating?.toFixed(1)}</Text>
+          <Text style={styles.ratingText}>{product.rating?.toFixed(1) || '0.0'}</Text>
         </View>
 
         <View style={styles.priceRow}>
@@ -46,11 +88,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
   },
+  imageContainer: {
+    position: 'relative',
+    width: 170,
+    height: 140,
+  },
   image: {
+    width: 170,
+    height: 140,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+  },
+  placeholder: {
     width: 170,
     height: 120,
     borderTopLeftRadius: 22,
     borderTopRightRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    zIndex: 1,
   },
   info: {
     width: '90%',
@@ -101,4 +167,3 @@ const styles = StyleSheet.create({
     marginLeft: 7,
   },
 });
-

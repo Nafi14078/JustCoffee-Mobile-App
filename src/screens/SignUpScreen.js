@@ -1,5 +1,5 @@
-import LottieView from 'lottie-react-native';
-import { useRef, useState } from 'react';
+import LottieView from "lottie-react-native";
+import { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -11,25 +11,25 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useAuth } from '../context/AuthContext';
+} from "react-native";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignUpScreen({ navigation }) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const animationRef = useRef(null);
-  
+
   const { register, isLoading, error, clearError } = useAuth();
 
   const onSignUp = async () => {
     if (!name.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      Alert.alert("Error", "Password must be at least 6 characters");
       return;
     }
 
@@ -37,28 +37,32 @@ export default function SignUpScreen({ navigation }) {
     const result = await register({
       name: name.trim(),
       email: email.trim(),
-      password
+      password,
     });
-    
+
     if (result.success) {
-      Alert.alert('Success', 'Account created successfully!');
-      // Navigation will be handled by AppNavigator based on auth state
+      Alert.alert("Success", "Account created successfully!", [
+        {
+          text: "OK",
+          onPress: () => navigation.replace("Login"),
+        },
+      ]);
     } else {
-      Alert.alert('Registration Failed', result.message);
+      Alert.alert("Registration Failed", result.message);
     }
   };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header with animation and title */}
         <View style={styles.headerContainer}>
           <LottieView
             ref={animationRef}
-            source={require('../../assets/animations/coffee-animation.json')}
+            source={require("../../assets/animations/coffee-animation.json")}
             style={styles.lottieAnimation}
             autoPlay
             loop
@@ -99,9 +103,7 @@ export default function SignUpScreen({ navigation }) {
             editable={!isLoading}
           />
 
-          {error && (
-            <Text style={styles.errorText}>{error}</Text>
-          )}
+          {error && <Text style={styles.errorText}>{error}</Text>}
 
           <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
@@ -118,11 +120,11 @@ export default function SignUpScreen({ navigation }) {
 
         {/* Footer */}
         <TouchableOpacity
-          onPress={() => navigation.replace('Login')}
+          onPress={() => navigation.replace("Login")}
           disabled={isLoading}
         >
           <Text style={styles.footerText}>
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Text style={styles.signupText}>Login</Text>
           </Text>
         </TouchableOpacity>
@@ -134,16 +136,16 @@ export default function SignUpScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 24,
   },
   headerContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
   },
   lottieAnimation: {
@@ -153,39 +155,39 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 36,
-    fontWeight: 'bold',
-    fontFamily: 'OpenSans-Bold',
-    color: '#a9745b',
-    textAlign: 'center',
+    fontWeight: "bold",
+    fontFamily: "OpenSans-Bold",
+    color: "#a9745b",
+    textAlign: "center",
   },
   formContainer: {
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     marginTop: 26,
   },
   input: {
-    width: '90%',
+    width: "90%",
     height: 50,
-    backgroundColor: '#2c2c2c',
+    backgroundColor: "#2c2c2c",
     borderRadius: 10,
     paddingHorizontal: 16,
-    color: '#d7cec7',
+    color: "#d7cec7",
     fontSize: 16,
     marginBottom: 12,
-    fontFamily: 'OpenSans-Regular',
-    shadowColor: '#a9745b',
+    fontFamily: "OpenSans-Regular",
+    shadowColor: "#a9745b",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.7,
     shadowRadius: 5.3,
   },
   button: {
-    width: '90%',
+    width: "90%",
     height: 50,
-    backgroundColor: '#a9745b',
+    backgroundColor: "#a9745b",
     borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#a9745b',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#a9745b",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.7,
     shadowRadius: 5.3,
@@ -195,27 +197,27 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     letterSpacing: 1,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: "OpenSans-Bold",
   },
   errorText: {
-    color: '#ff6b6b',
+    color: "#ff6b6b",
     fontSize: 14,
     marginBottom: 10,
-    textAlign: 'center',
-    fontFamily: 'OpenSans-Regular',
+    textAlign: "center",
+    fontFamily: "OpenSans-Regular",
   },
   footerText: {
     marginTop: 20,
-    color: '#d7cec7',
-    textAlign: 'center',
-    fontFamily: 'OpenSans-Regular',
+    color: "#d7cec7",
+    textAlign: "center",
+    fontFamily: "OpenSans-Regular",
   },
   signupText: {
-    color: '#a9745b',
-    fontWeight: '600',
+    color: "#a9745b",
+    fontWeight: "600",
   },
 });
