@@ -1,8 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
   const { user, logout, isLoading } = useAuth();
 
   const handleLogout = () => {
@@ -25,14 +28,35 @@ export default function ProfileScreen() {
     );
   };
 
+  const menuItems = [
+    {
+      id: 'settings',
+      title: 'Settings',
+      icon: 'settings-outline',
+      onPress: () => navigation.navigate('Settings'),
+    },
+    {
+      id: 'help',
+      title: 'Help & Support',
+      icon: 'help-circle-outline',
+      onPress: () => navigation.navigate('Help'),
+    },
+    {
+      id: 'about',
+      title: 'About',
+      icon: 'information-circle-outline',
+      onPress: () => navigation.navigate('About'),
+    },
+  ];
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Profile</Text>
-      
+
       {/* Profile Avatar */}
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
-          <Ionicons name="person" size={60} color="#a9745b" />
+          <Ionicons name="person" size={40} color="#a9745b" />
         </View>
       </View>
 
@@ -69,35 +93,25 @@ export default function ProfileScreen() {
 
       {/* Menu Options */}
       <View style={styles.menuContainer}>
-        <TouchableOpacity style={styles.menuItem}>
-          <Ionicons name="settings-outline" size={20} color="#a9745b" />
-          <Text style={styles.menuText}>Settings</Text>
-          <Ionicons name="chevron-forward" size={20} color="#888" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem}>
-          <Ionicons name="help-circle-outline" size={20} color="#a9745b" />
-          <Text style={styles.menuText}>Help & Support</Text>
-          <Ionicons name="chevron-forward" size={20} color="#888" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem}>
-          <Ionicons name="information-circle-outline" size={20} color="#a9745b" />
-          <Text style={styles.menuText}>About</Text>
-          <Ionicons name="chevron-forward" size={20} color="#888" />
-        </TouchableOpacity>
+        {menuItems.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.menuItem}
+            onPress={item.onPress}
+          >
+            <Ionicons name={item.icon} size={22} color="#a9745b" />
+            <Text style={styles.menuText}>{item.title}</Text>
+            <Ionicons name="chevron-forward" size={20} color="#bdbdbd" />
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity 
-        style={styles.logoutButton} 
-        onPress={handleLogout}
-        disabled={isLoading}
-      >
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} disabled={isLoading}>
         <Ionicons name="log-out-outline" size={20} color="#fff" />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -106,7 +120,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1E1E1E',
     padding: 20,
-    paddingTop: 60,
   },
   title: {
     fontFamily: 'OpenSans-Bold',
@@ -114,6 +127,7 @@ const styles = StyleSheet.create({
     color: '#a9745b',
     textAlign: 'center',
     marginBottom: 30,
+    marginTop: 20,
   },
   avatarContainer: {
     alignItems: 'center',

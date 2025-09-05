@@ -1,27 +1,56 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { useCart } from '../context/CartContext';
 
-export default function ProductDetailsScreen({ route }) {
+export default function ProductDetailsScreen({ route, navigation }) {
   const { product } = route.params;
+  const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState('M');
 
   const sizes = ['S', 'M', 'L'];
+  const sizeMultipliers = { S: 0.8, M: 1, L: 1.2 };
+
+  const getCurrentPrice = () => {
+    return product.price * sizeMultipliers[selectedSize];
+  };
+
+  const handleAddToCart = () => {
+    const itemToAdd = {
+      ...product,
+      selectedSize,
+      price: getCurrentPrice(),
+      name: `${product.name} (${selectedSize})`,
+    };
+
+    addItem(itemToAdd, 'product');
+    Alert.alert(
+      'Added to Cart',
+      `${product.name} (${selectedSize}) has been added to your cart!`,
+      [
+        { text: 'Continue Shopping', style: 'cancel' },
+        { text: 'View Cart', onPress: () => navigation.navigate('Cart') },
+      ]
+    );
+  };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
-      <Image source={product.image} style={styles.image} resizeMode="cover" />
+    <ScrollView style={styles.container}>
+      <Image source={product.image} style={styles.image} />
+
       <View style={styles.content}>
         <Text style={styles.name}>{product.name}</Text>
 
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={18} color="#a9745b" />
+          <Ionicons name="star" size={20} color="#a9745b" />
           <Text style={styles.ratingText}>{product.rating.toFixed(1)}</Text>
         </View>
 
-        <Text style={styles.description}>{product.description}</Text>
+        <Text style={styles.description}>
+          {product.description || `Delicious ${product.name} ${product.desc}. Made with premium ingredients and expertly crafted for the perfect taste experience.`}
+        </Text>
 
-        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Choose Size</Text>
+        <Text style={styles.sectionTitle}>Choose Size</Text>
         <View style={styles.sizesRow}>
           {sizes.map((size) => (
             <TouchableOpacity
@@ -33,12 +62,10 @@ export default function ProductDetailsScreen({ route }) {
               ]}
               activeOpacity={0.8}
             >
-              <Text
-                style={[
-                  styles.sizeText,
-                  selectedSize === size && { color: 'white', fontWeight: '700' },
-                ]}
-              >
+              <Text style={[
+                styles.sizeText,
+                selectedSize === size && styles.sizeTextSelected,
+              ]}>
                 {size}
               </Text>
             </TouchableOpacity>
@@ -46,8 +73,8 @@ export default function ProductDetailsScreen({ route }) {
         </View>
 
         <View style={styles.bottomRow}>
-          <Text style={styles.price}>${product.price.toFixed(2)}</Text>
-          <TouchableOpacity style={styles.addToCartBtn} activeOpacity={0.8}>
+          <Text style={styles.price}>${getCurrentPrice().toFixed(2)}</Text>
+          <TouchableOpacity style={styles.addToCartBtn} onPress={handleAddToCart}>
             <Text style={styles.addToCartText}>Add to Cart</Text>
           </TouchableOpacity>
         </View>
@@ -68,6 +95,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 18,
     paddingTop: 18,
+    paddingBottom: 30,
   },
   name: {
     fontSize: 26,
@@ -91,6 +119,7 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Regular',
     fontSize: 16,
     lineHeight: 22,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
@@ -101,12 +130,13 @@ const styles = StyleSheet.create({
   sizesRow: {
     flexDirection: 'row',
     gap: 14,
+    marginBottom: 24,
   },
   sizeBtn: {
     borderWidth: 1,
     borderColor: '#a9745b',
     borderRadius: 24,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -117,9 +147,12 @@ const styles = StyleSheet.create({
   sizeText: {
     color: '#a9745b',
     fontSize: 16,
+    fontFamily: 'OpenSans-Regular',
+  },
+  sizeTextSelected: {
+    color: '#fff',
   },
   bottomRow: {
-    marginTop: 30,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

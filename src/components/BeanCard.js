@@ -4,19 +4,28 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function BeanCard({ bean, onPress, onPressAdd }) {
   return (
-    <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={() => onPress?.(bean)}>
-      <Image source={bean.image} style={styles.image} resizeMode="cover" />
-      <Text style={styles.name} numberOfLines={1}>{bean.name}</Text>
-      <Text style={styles.desc} numberOfLines={2}>{bean.desc}</Text>
+    <TouchableOpacity style={styles.card} onPress={() => onPress?.(bean)}>
+      <Image source={bean.image} style={styles.image} />
+
+      <Text style={styles.name}>{bean.name}</Text>
+      <Text style={styles.desc}>{bean.desc}</Text>
+
       <View style={styles.footer}>
         <View style={styles.ratingRow}>
-          <Text style={styles.ratingStar}>★</Text>
+          <Ionicons name="star" size={15} color="#a9745b" style={styles.ratingStar} />
           <Text style={styles.ratingText}>{bean.rating?.toFixed(1)}</Text>
         </View>
+
         <View style={styles.priceRow}>
           <Text style={styles.price}>${bean.price?.toFixed(2)}</Text>
-          <TouchableOpacity style={styles.addBtn} onPress={(e) => { e.stopPropagation(); onPressAdd?.(bean); }}>
-            <Ionicons name="add" size={18} color="#fff" />
+          <TouchableOpacity
+            style={styles.addBtn}
+            onPress={(e) => {
+              e.stopPropagation();
+              onPressAdd?.(bean);
+            }}
+          >
+            <Ionicons name="add" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -92,3 +101,4 @@ const styles = StyleSheet.create({
     marginLeft: 7,
   },
 });
+

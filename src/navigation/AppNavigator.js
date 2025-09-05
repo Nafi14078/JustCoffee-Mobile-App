@@ -1,10 +1,13 @@
+import React from 'react';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Text } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
+// Screens
 import CartScreen from '../screens/CartScreen';
 import HomeScreen from '../screens/HomeScreen';
 import IntroScreen from '../screens/IntroScreen';
@@ -12,12 +15,18 @@ import LoginScreen from '../screens/LoginScreen';
 import ProductDetailsScreen from '../screens/ProductDetailsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import PaymentScreen from '../screens/PaymentScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import HelpScreen from '../screens/HelpScreen';
+import AboutScreen from '../screens/AboutScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 /** -------- BOTTOM TABS -------- **/
 function MainTabs() {
+  const { itemCount } = useCart();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -29,9 +38,34 @@ function MainTabs() {
           if (route.name === 'Home') {
             return <Ionicons name="home" size={size} color={color} />;
           } else if (route.name === 'Cart') {
-            return <Ionicons name="cart" size={size} color={color} />;
+            return (
+              <View style={{ position: 'relative' }}>
+                <MaterialCommunityIcons name="cart" size={size} color={color} />
+                {itemCount > 0 && (
+                  <View style={{
+                    position: 'absolute',
+                    right: -6,
+                    top: -3,
+                    backgroundColor: '#ff6b6b',
+                    borderRadius: 10,
+                    width: 20,
+                    height: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                    <Text style={{
+                      color: 'white',
+                      fontSize: 12,
+                      fontWeight: 'bold',
+                    }}>
+                      {itemCount > 99 ? '99+' : itemCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            );
           } else if (route.name === 'Profile') {
-            return <MaterialCommunityIcons name="account" size={size} color={color} />;
+            return <Ionicons name="person" size={size} color={color} />;
           }
           return null;
         },
@@ -51,12 +85,7 @@ export default function AppNavigator() {
   // Show loading screen while checking auth state
   if (isLoading) {
     return (
-      <View style={{ 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        backgroundColor: '#1E1E1E' 
-      }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1E1E1E' }}>
         <ActivityIndicator size="large" color="#a9745b" />
       </View>
     );
@@ -80,8 +109,31 @@ export default function AppNavigator() {
               name="ProductDetails"
               component={ProductDetailsScreen}
               options={({ route }) => ({
+                headerShown: true,
                 title: route.params?.product?.name || 'Details',
+                headerStyle: { backgroundColor: '#1E1E1E' },
+                headerTintColor: '#fff',
               })}
+            />
+            <Stack.Screen
+              name="Payment"
+              component={PaymentScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Help"
+              component={HelpScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="About"
+              component={AboutScreen}
+              options={{ headerShown: false }}
             />
           </>
         )}

@@ -4,36 +4,31 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProductCard({ product, onPress, onPressAdd }) {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.85}
-      style={styles.card}
-    >
+    <TouchableOpacity style={styles.card} onPress={() => onPress?.(product)}>
       {/* IMAGE AT THE TOP */}
-      <Image source={product.image} style={styles.image} resizeMode="cover" />
-      
+      <Image source={product.image} style={styles.image} />
+
       {/* INFO BLOCK BELOW IMAGE */}
       <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>
-          {product.name}
-        </Text>
-        <Text style={styles.desc} numberOfLines={2}>
-          {product.desc}
-        </Text>
+        <Text style={styles.name}>{product.name}</Text>
+        <Text style={styles.desc}>{product.desc}</Text>
+
         <View style={styles.ratingRow}>
           <Ionicons name="star" size={15} color="#a9745b" />
           <Text style={styles.ratingText}>{product.rating?.toFixed(1)}</Text>
         </View>
+
         <View style={styles.priceRow}>
           <Text style={styles.price}>${product.price?.toFixed(2)}</Text>
+
           <TouchableOpacity
             style={styles.addBtn}
             onPress={(e) => {
-              e.stopPropagation && e.stopPropagation(); // prevent card tap
-              if(onPressAdd) onPressAdd(product);
+              e.stopPropagation();
+              onPressAdd?.(product);
             }}
           >
-            <Ionicons name="add" size={18} color="#fff" />
+            <Ionicons name="add" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -106,3 +101,4 @@ const styles = StyleSheet.create({
     marginLeft: 7,
   },
 });
+

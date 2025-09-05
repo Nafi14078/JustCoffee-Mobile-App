@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, ScrollView, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, ScrollView, StyleSheet, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { useNavigation } from '@react-navigation/native';
-
 import ProductCard from '../components/ProductCard';
 import BeanCard from '../components/BeanCard';
+import { useCart } from '../context/CartContext';
 
 // Images
 const userIcon = require('../../assets/images/user.jpg');
@@ -33,7 +32,30 @@ const products = [
     price: 4.20,
     rating: 4.2,
   },
-  // Add more items...
+  {
+    id: 3,
+    name: 'Espresso',
+    desc: 'Strong Coffee',
+    image: require('../../assets/images/coffee1.jpg'),
+    price: 3.50,
+    rating: 4.7,
+  },
+  {
+    id: 4,
+    name: 'Americano',
+    desc: 'Diluted Espresso',
+    image: require('../../assets/images/coffee2.jpg'),
+    price: 3.80,
+    rating: 4.3,
+  },
+  {
+    id: 5,
+    name: 'Macchiato',
+    desc: 'Espresso with Milk',
+    image: require('../../assets/images/coffee1.jpg'),
+    price: 4.50,
+    rating: 4.6,
+  },
 ];
 
 const beans = [
@@ -53,38 +75,82 @@ const beans = [
     price: 5.20,
     rating: 4.8,
   },
-  // Add more beans...
 ];
 
 export default function HomeScreen({ navigation }) {
-  // If navigation isn't passed (sometimes with custom hooks), get it:
   const nav = navigation || useNavigation();
+  const { addItem } = useCart();
 
   const [activeCategory, setActiveCategory] = useState('All');
   const [search, setSearch] = useState('');
-
-  const filteredProducts = products.filter(p =>
-    (activeCategory === 'All' || p.name === activeCategory) &&
-    (search.length === 0 || p.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceRange, setPriceRange] = useState('All');
+  const [ratingFilter, setRatingFilter] = useState('All');
 
   const handleAddProduct = (product) => {
-    // For add-to-cart on product
+    addItem(product, 'product');
+    Alert.alert('Added to Cart', `${product.name} has been added to your cart!`);
   };
 
   const handleAddBean = (bean) => {
-    // For add-to-cart on bean
+    addItem(bean, 'bean');
+    Alert.alert('Added to Cart', `${bean.name} has been added to your cart!`);
+  };
+
+  const getFilteredProducts = () => {
+    let filtered = products.filter(p => {
+      // Category filter
+      const categoryMatch = activeCategory === 'All' || p.name === activeCategory;
+
+      // Search filter
+      const searchMatch = search.length === 0 ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.desc.toLowerCase().includes(search.toLowerCase());
+
+      // Price filter
+      let priceMatch = true;
+      if (priceRange === 'Low') priceMatch = p.price <= 4.0;
+      else if (priceRange === 'Medium') priceMatch = p.price > 4.0 && p.price <= 5.0;
+      else if (priceRange === 'High') priceMatch = p.price > 5.0;
+
+      // Rating filter
+      let ratingMatch = true;
+      if (ratingFilter === '4+') ratingMatch = p.rating >= 4.0;
+      else if (ratingFilter === '4.5+') ratingMatch = p.rating >= 4.5;
+
+      return categoryMatch && searchMatch && priceMatch && ratingMatch;
+    });
+
+    return filtered;
+  };
+
+  const getFilteredBeans = () => {
+    return beans.filter(b => {
+      const searchMatch = search.length === 0 ||
+        b.name.toLowerCase().includes(search.toLowerCase()) ||
+        b.desc.toLowerCase().includes(search.toLowerCase());
+
+      let priceMatch = true;
+      if (priceRange === 'Low') priceMatch = b.price <= 4.0;
+      else if (priceRange === 'Medium') priceMatch = b.price > 4.0 && b.price <= 5.0;
+      else if (priceRange === 'High') priceMatch = b.price > 5.0;
+
+      let ratingMatch = true;
+      if (ratingFilter === '4+') ratingMatch = b.rating >= 4.0;
+      else if (ratingFilter === '4.5+') ratingMatch = b.rating >= 4.5;
+
+      return searchMatch && priceMatch && ratingMatch;
+    });
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView style={styles.container} contentContainerStyle={{paddingBottom: 30}}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Top Header Icons */}
         <View style={styles.topHeader}>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name={burgerIcon} size={28} color="white" />
+            <Ionicons name={burgerIcon} size={24} color="#bdbdbd" />
           </TouchableOpacity>
-          <View style={{ flex: 1 }} />
           <TouchableOpacity style={styles.iconButton}>
             <Image source={userIcon} style={styles.profileIcon} />
           </TouchableOpacity>
@@ -98,50 +164,85 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         {/* Search Bar */}
-        <View style={styles.searchBar}>
-          <Ionicons name="ios-search" size={20} color="#888" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Find Your Coffee..."
-            placeholderTextColor="#888"
-            value={search}
-            onChangeText={setSearch}
-          />
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color="#bdbdbd" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search coffee..."
+              placeholderTextColor="#bdbdbd"
+              value={search}
+              onChangeText={setSearch}
+            />
+            <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+              <Ionicons name="options" size={20} color="#a9745b" />
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {/* Filters */}
+        {showFilters && (
+          <View style={styles.filtersContainer}>
+            <View style={styles.filterRow}>
+              <Text style={styles.filterLabel}>Price:</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {['All', 'Low', 'Medium', 'High'].map(range => (
+                  <TouchableOpacity
+                    key={range}
+                    style={[styles.filterBtn, priceRange === range && styles.activeFilterBtn]}
+                    onPress={() => setPriceRange(range)}
+                  >
+                    <Text style={[styles.filterText, priceRange === range && styles.activeFilterText]}>
+                      {range}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={styles.filterRow}>
+              <Text style={styles.filterLabel}>Rating:</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {['All', '4+', '4.5+'].map(rating => (
+                  <TouchableOpacity
+                    key={rating}
+                    style={[styles.filterBtn, ratingFilter === rating && styles.activeFilterBtn]}
+                    onPress={() => setRatingFilter(rating)}
+                  >
+                    <Text style={[styles.filterText, ratingFilter === rating && styles.activeFilterText]}>
+                      {rating}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        )}
 
         {/* Categories Tabs */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryContainer}>
           {categories.map(category => (
             <TouchableOpacity
               key={category}
-              style={[
-                styles.categoryTab,
-                activeCategory === category && styles.activeCategoryTab
-              ]}
+              style={[styles.categoryTab, activeCategory === category && styles.activeCategoryTab]}
               onPress={() => setActiveCategory(category)}
             >
-              <Text
-                style={{
-                  color: activeCategory === category ? '#a9745b' : '#fff',
-                  fontFamily: activeCategory === category ? 'OpenSans-Bold' : 'OpenSans-Regular'
-                }}
-              >
-                {category}
-              </Text>
+              <Text style={styles.categoryText}>{category}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
         {/* Products */}
         <FlatList
+          data={getFilteredProducts()}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={filteredProducts}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
-            <ProductCard 
+            <ProductCard
               product={item}
               onPress={() => nav.navigate('ProductDetails', { product: item })}
+              onPressAdd={() => handleAddProduct(item)}
             />
           )}
           style={{ marginTop: 5, marginBottom: 35 }}
@@ -151,21 +252,19 @@ export default function HomeScreen({ navigation }) {
         {/* Coffee Beans */}
         <Text style={styles.sectionHeading}>Coffee beans</Text>
         <FlatList
+          data={getFilteredBeans()}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={beans}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
-            <BeanCard 
-              bean={item} 
-              onPressAdd={handleAddBean}
-              onPress={() => nav.navigate('BeanDetails', { bean: item })}
+            <BeanCard
+              bean={item}
+              onPress={() => nav.navigate('ProductDetails', { product: item })}
+              onPressAdd={() => handleAddBean(item)}
             />
           )}
           contentContainerStyle={{ paddingBottom: 16 }}
         />
-
-        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -180,10 +279,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#18181A',
     paddingHorizontal: 18,
-    // removed paddingTop; SafeAreaView handles it!
   },
   topHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
     marginTop: 0,
@@ -210,6 +309,9 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Bold',
     marginLeft: 2,
   },
+  searchContainer: {
+    marginBottom: 16,
+  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -217,7 +319,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    marginBottom: 16,
     marginLeft: 2,
     marginRight: 2,
   },
@@ -227,6 +328,40 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontFamily: 'OpenSans-Regular',
+  },
+  filtersContainer: {
+    backgroundColor: '#23232b',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    marginHorizontal: 2,
+  },
+  filterRow: {
+    marginBottom: 8,
+  },
+  filterLabel: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'OpenSans-Bold',
+    marginBottom: 8,
+  },
+  filterBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#2c2c2c',
+    marginRight: 8,
+  },
+  activeFilterBtn: {
+    backgroundColor: '#a9745b',
+  },
+  filterText: {
+    color: '#bdbdbd',
+    fontSize: 12,
+    fontFamily: 'OpenSans-Regular',
+  },
+  activeFilterText: {
+    color: '#fff',
   },
   categoryContainer: {
     flexDirection: 'row',
@@ -244,68 +379,10 @@ const styles = StyleSheet.create({
   activeCategoryTab: {
     backgroundColor: '#23232b',
   },
-  bigProductCard: {
-    width: 170,
-    backgroundColor: '#23232b',
-    borderRadius: 22,
-    marginRight: 18,
-    paddingBottom: 12,
-    paddingTop: 1,
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  bigProductImage: {
-    width: 170,
-    height: 120,
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
-  },
-  productName: {
-    fontFamily: 'OpenSans-Bold',
-    color: '#fff',
-    fontSize: 18,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  productDesc: {
+  categoryText: {
     color: '#bdbdbd',
-    fontFamily: 'OpenSans-Regular',
-    fontSize: 13,
-    marginTop: 4,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  cardFooter: {
-    width: '90%',
-    alignSelf: 'center',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  ratingText: {
-    marginLeft: 3,
-    color: '#a9745b',
-    fontFamily: 'OpenSans-Regular',
     fontSize: 14,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
-    justifyContent: 'space-between'
-  },
-  productPrice: {
-    color: '#a9745b',
-    fontFamily: 'OpenSans-Bold',
-    fontSize: 16,
-    marginRight: 7,
-  },
-  addBtn: {
-    backgroundColor: '#a9745b',
-    padding: 7,
-    borderRadius: 8,
-    marginLeft: 7,
+    fontFamily: 'OpenSans-Regular',
   },
   sectionHeading: {
     color: '#fff',
@@ -316,3 +393,4 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
 });
+
