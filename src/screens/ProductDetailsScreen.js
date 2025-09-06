@@ -1,6 +1,7 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
+  Alert,
   Image,
   Platform,
   ScrollView,
@@ -10,9 +11,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCart } from '../context/CartContext';
 
 export default function ProductDetailsScreen({ route }) {
   const { product } = route.params;
+  const { addToCart } = useCart();
   
   // Use actual product data instead of hardcoded values
   const productSizes = product.sizeOptions && product.sizeOptions.length > 0 
@@ -35,6 +38,11 @@ export default function ProductDetailsScreen({ route }) {
   const productRating = typeof product.rating === 'number' ? product.rating : 4.5;
   const productRatingCount = typeof product.ratingCount === 'number' ? product.ratingCount : 6879;
   const productPrice = typeof product.price === 'number' ? product.price : 4.2;
+
+  const handleAddToCart = () => {
+    addToCart(product, selectedSize);
+    Alert.alert('✅ Added to Cart', `${product.name} (${selectedSize}) has been added to your cart!`);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
@@ -199,7 +207,11 @@ export default function ProductDetailsScreen({ route }) {
                 <Text style={styles.priceLabel}>Price</Text>
                 <Text style={styles.price}>${productPrice.toFixed(2)}</Text>
               </View>
-              <TouchableOpacity style={styles.addToCartBtn} activeOpacity={0.9}>
+              <TouchableOpacity 
+                style={styles.addToCartBtn} 
+                activeOpacity={0.9}
+                onPress={handleAddToCart}
+              >
                 <Text style={styles.addToCartText}>Add to Cart</Text>
               </TouchableOpacity>
             </View>

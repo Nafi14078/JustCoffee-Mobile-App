@@ -17,6 +17,7 @@ import SignUpScreen from '../screens/SignUpScreen';
 import AdminDashboard from '../screens/AdminDashboard';
 import AllUsersScreen from '../screens/AllUsersScreen';
 import OrderHistory from '../screens/OrderHistory';
+import PaymentScreen from '../screens/PaymentScreen';
 import ProductCreate from '../screens/ProductCreate';
 import ProductEditScreen from '../screens/ProductEditScreen';
 import ProductListScreen from '../screens/ProductListScreen';
@@ -114,6 +115,7 @@ export default function AppNavigator() {
             {/* ------------------------------- */}
 
             <Stack.Screen name="OrderHistory" component={OrderHistory} />
+            <Stack.Screen name="Payment" component={PaymentScreen} />
           </>
         ) : (
           // Not logged in → show login/sign up flow

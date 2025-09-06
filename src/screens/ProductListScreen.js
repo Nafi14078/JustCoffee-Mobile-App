@@ -10,7 +10,7 @@ import {
   View
 } from 'react-native';
 
-const API_BASE_URL = 'http://192.168.0.104:5000/api'; // Your API base
+const API_BASE_URL = 'http://192.168.0.105:5000/api'; // Your API base
 
 const ProductListScreen = () => {
   const navigation = useNavigation();

@@ -1,16 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useCart } from '../context/CartContext';
 
 export default function ProductCard({ product, onPress, onPressAdd }) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const { addToCart } = useCart();
 
   // Generate a colored placeholder based on product name
   const generatePlaceholderColor = (name) => {
     const colors = ['#3a3a3a', '#4a4a4a', '#5a5a5a', '#6a6a6a'];
     const index = name.length % colors.length;
     return colors[index];
+  };
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation && e.stopPropagation(); // prevent card tap
+    
+    // Add to cart with default size 'M'
+    addToCart(product, 'M');
+    
+    // Show success message
+    Alert.alert('✅ Added to Cart', `${product.name} has been added to your cart!`);
+    
+    // Call the original onPressAdd if provided
+    if (onPressAdd) onPressAdd(product);
   };
 
   return (
@@ -63,10 +78,7 @@ export default function ProductCard({ product, onPress, onPressAdd }) {
           <Text style={styles.price}>${product.price?.toFixed(2)}</Text>
           <TouchableOpacity
             style={styles.addBtn}
-            onPress={(e) => {
-              e.stopPropagation && e.stopPropagation(); // prevent card tap
-              if(onPressAdd) onPressAdd(product);
-            }}
+            onPress={handleAddToCart}
           >
             <Ionicons name="add" size={18} color="#fff" />
           </TouchableOpacity>

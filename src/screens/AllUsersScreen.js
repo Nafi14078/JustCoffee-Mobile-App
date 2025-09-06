@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // 🔹 Replace with your server IP and port
-const API_BASE_URL = "http://192.168.0.104:5000/api/users";
+const API_BASE_URL = "http://192.168.0.105:5000/api/users";
 
 export default function AllUsersScreen() {
   const [users, setUsers] = useState([]);
