@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: 'OpenSans-Bold',
-    color: '#fff',
+    color: '#a9745b',
     marginBottom: 24,
     textAlign: 'center',
   },

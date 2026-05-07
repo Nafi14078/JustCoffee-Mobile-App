@@ -1,13 +1,13 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCart } from '../context/CartContext';
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: 'OpenSans-Bold',
-    color: '#fff',
+    color: '#a9745b',
     marginBottom: 24,
     textAlign: 'center',
   },
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 20,
     fontFamily: 'OpenSans-Bold',
-    color: '#fff',
+    color: '#a9745b',
     marginBottom: 16,
   },
   summaryRow: {
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontFamily: 'OpenSans-Bold',
-    color: '#fff',
+    color: '#a9745b',
     marginBottom: 16,
   },
   paymentOption: {

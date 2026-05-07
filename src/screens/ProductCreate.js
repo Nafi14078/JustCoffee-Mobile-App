@@ -104,7 +104,7 @@ export default function ProductCreate() {
         icon="resize-outline"
         value={sizeOptions}
         onChange={setSizeOptions}
-        placeholder="Size Options (comma separated, e.g. S,M,L)"
+        placeholder="Size Options "
       />
 
       {/* Ingredients */}
@@ -112,7 +112,7 @@ export default function ProductCreate() {
         icon="leaf-outline"
         value={ingredients}
         onChange={setIngredients}
-        placeholder="Ingredients (comma separated, e.g. Coffee,Milk)"
+        placeholder="Ingredients "
       />
 
       {/* Roast Level */}
@@ -120,7 +120,7 @@ export default function ProductCreate() {
         icon="flame-outline"
         value={roastLevel}
         onChange={setRoastLevel}
-        placeholder="Roast Level (e.g. Medium Roasted)"
+        placeholder="Roast Level "
       />
 
       {/* Rating */}
@@ -256,6 +256,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 6,
     elevation: 5,
+    marginBottom: 30,
   },
   buttonText: { color: '#fff', fontSize: 18, fontWeight: '700', marginLeft: 8 },
 });
