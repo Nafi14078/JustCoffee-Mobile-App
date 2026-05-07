@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
+import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,10 +7,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-} from 'react-native';
+  View,
+} from "react-native";
 
-const API_BASE_URL = 'http://192.168.0.100:5000/api'; // Your API base
+const API_BASE_URL = "https://justcoffee-web-app.onrender.com/api"; // Your API base
 
 const ProductListScreen = () => {
   const navigation = useNavigation();
@@ -24,7 +24,7 @@ const ProductListScreen = () => {
         const data = await response.json();
         setProducts(data); // Assuming your API returns an array of products
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
@@ -36,7 +36,9 @@ const ProductListScreen = () => {
   const renderProductItem = ({ item }) => (
     <TouchableOpacity
       style={styles.productCard}
-      onPress={() => navigation.navigate('ProductEdit', { productId: item._id })}
+      onPress={() =>
+        navigation.navigate("ProductEdit", { productId: item._id })
+      }
     >
       {item.imageUrl ? (
         <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
@@ -44,21 +46,35 @@ const ProductListScreen = () => {
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.name}</Text>
         {item.description ? (
-          <Text style={styles.productDescription}>Description: {item.description}</Text>
+          <Text style={styles.productDescription}>
+            Description: {item.description}
+          </Text>
         ) : null}
-        <Text style={styles.productPrice}>Price: ${item.price?.toFixed(2)}</Text>
+        <Text style={styles.productPrice}>
+          Price: ${item.price?.toFixed(2)}
+        </Text>
         {item.sizeOptions && item.sizeOptions.length > 0 ? (
-          <Text style={styles.productSubtext}>Sizes: {item.sizeOptions.join(', ')}</Text>
+          <Text style={styles.productSubtext}>
+            Sizes: {item.sizeOptions.join(", ")}
+          </Text>
         ) : null}
         {item.ingredients && item.ingredients.length > 0 ? (
-          <Text style={styles.productSubtext}>Ingredients: {item.ingredients.join(', ')}</Text>
+          <Text style={styles.productSubtext}>
+            Ingredients: {item.ingredients.join(", ")}
+          </Text>
         ) : null}
         {item.roastLevel ? (
-          <Text style={styles.productSubtext}>Roast Level: {item.roastLevel}</Text>
+          <Text style={styles.productSubtext}>
+            Roast Level: {item.roastLevel}
+          </Text>
         ) : null}
-        <Text style={styles.productSubtext}>Rating: {item.rating} ({item.ratingCount} reviews)</Text>
+        <Text style={styles.productSubtext}>
+          Rating: {item.rating} ({item.ratingCount} reviews)
+        </Text>
         {item.createdAt ? (
-          <Text style={styles.productSubtext}>Created: {new Date(item.createdAt).toLocaleString()}</Text>
+          <Text style={styles.productSubtext}>
+            Created: {new Date(item.createdAt).toLocaleString()}
+          </Text>
         ) : null}
       </View>
     </TouchableOpacity>
@@ -91,23 +107,23 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 30,
     paddingBottom: 50,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   listContent: {
     padding: 16,
   },
   productCard: {
-    flexDirection: 'row',
-    backgroundColor: '#2c2c2c',
+    flexDirection: "row",
+    backgroundColor: "#2c2c2c",
     borderRadius: 12,
     marginBottom: 16,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   productImage: {
     width: 80,
@@ -120,22 +136,22 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 4,
   },
   productDescription: {
-    color: '#ccc',
+    color: "#ccc",
     marginBottom: 4,
   },
   productPrice: {
     fontSize: 16,
-    color: '#a9745b',
-    fontWeight: '600',
+    color: "#a9745b",
+    fontWeight: "600",
     marginBottom: 4,
   },
   productSubtext: {
-    color: '#aaa',
+    color: "#aaa",
     fontSize: 14,
     marginBottom: 2,
   },

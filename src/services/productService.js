@@ -1,18 +1,18 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
-const API_URL = 'http://192.168.0.100:5000/api/products';
+const API_URL = "https://justcoffee-web-app.onrender.com/api/products";
 
 const api = axios.create({
   baseURL: API_URL,
   timeout: 10000,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
 // Add a request interceptor to include JWT token in headers
 api.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -20,17 +20,17 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 class ProductService {
   async getAll() {
-    const res = await api.get('/');
+    const res = await api.get("/");
     return res.data;
   }
 
   async create(product) {
-    const res = await api.post('/', product);
+    const res = await api.post("/", product);
     return res.data;
   }
 

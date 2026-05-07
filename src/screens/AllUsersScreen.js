@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // 🔹 Replace with your server IP and port
-const API_BASE_URL = "http://192.168.0.100:5000/api/users";
+const API_BASE_URL = "https://justcoffee-web-app.onrender.com/api/users";
 
 export default function AllUsersScreen() {
   const [users, setUsers] = useState([]);
@@ -57,7 +57,7 @@ export default function AllUsersScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchUsers();
-    }, [])
+    }, []),
   );
 
   const onRefresh = () => {
@@ -88,9 +88,15 @@ export default function AllUsersScreen() {
       <View style={styles.container}>
         {/* Header row */}
         <View style={[styles.row, styles.headerRow]}>
-          <Text style={[styles.cell, styles.cellIndex, styles.headerCell]}>#</Text>
-          <Text style={[styles.cell, styles.cellName, styles.headerCell]}>Name</Text>
-          <Text style={[styles.cell, styles.cellEmail, styles.headerCell]}>Email</Text>
+          <Text style={[styles.cell, styles.cellIndex, styles.headerCell]}>
+            #
+          </Text>
+          <Text style={[styles.cell, styles.cellName, styles.headerCell]}>
+            Name
+          </Text>
+          <Text style={[styles.cell, styles.cellEmail, styles.headerCell]}>
+            Email
+          </Text>
         </View>
 
         {/* Users list */}
@@ -103,7 +109,9 @@ export default function AllUsersScreen() {
             data={users}
             keyExtractor={(item) => item._id}
             renderItem={renderItem}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           />
         )}
       </View>
