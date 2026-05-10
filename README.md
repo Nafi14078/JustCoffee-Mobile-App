@@ -1,22 +1,38 @@
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 07 (3)" src="https://github.com/user-attachments/assets/b97a93d0-e455-46b9-a2e1-1d20fc6c014f" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 07 (2)" src="https://github.com/user-attachments/assets/696a8dbe-5f78-4204-a125-428e77dfa14b" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 07 (1)" src="https://github.com/user-attachments/assets/ec06ce59-9bdf-4559-9560-b5d1598a7160" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 06" src="https://github.com/user-attachments/assets/3f5753fa-f7cd-4056-9c4a-08e98dafbe9d" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 06 (2)" src="https://github.com/user-attachments/assets/0e563391-743f-4d03-9c39-ea75089ceba7" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 06 (1)" src="https://github.com/user-attachments/assets/f391225c-043f-4818-969d-1a0b4540d9d0" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 05" src="https://github.com/user-attachments/assets/84dd7939-ef14-4623-a9ee-fe1da989b678" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 10" src="https://github.com/user-attachments/assets/1a9a5655-6061-4da2-ba46-05f2f94b5837" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 09" src="https://github.com/user-attachments/assets/c0d9aeb2-2008-452e-9086-06aca8516d5f" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 09 (2)" src="https://github.com/user-attachments/assets/e39cdcca-13b6-4981-a0fd-e555a70f4d6e" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 09 (1)" src="https://github.com/user-attachments/assets/a2a663b6-55eb-49ed-b392-5a061ebb6fce" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 08" src="https://github.com/user-attachments/assets/b0ba01f8-b22a-4189-b3bb-4f03531044b7" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 08 (2)" src="https://github.com/user-attachments/assets/563e4b79-ac04-444a-9e3a-fb4e6df524e4" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 08 (1)" src="https://github.com/user-attachments/assets/4f43676b-7304-440d-9d19-1f1f286a5208" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-10 at 20 15 07" src="https://github.com/user-attachments/assets/1f3097fe-5715-4613-9369-7f9f74f3d543" />
-# Welcome to your Expo app 👋
+
+# Welcome to our JustCoffee Mobile app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+# Here are some screenshot of our JustCoffee app
+
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/c0d9aeb2-2008-452e-9086-06aca8516d5f" width="200" height="400"/></td>
+     <td><img src="https://github.com/user-attachments/assets/563e4b79-ac04-444a-9e3a-fb4e6df524e4" width="200" height="400"/></td>
+     <td><img src="https://github.com/user-attachments/assets/4f43676b-7304-440d-9d19-1f1f286a5208" width="200" height="400"/></td>
+     <td><img src="https://github.com/user-attachments/assets/b0ba01f8-b22a-4189-b3bb-4f03531044b7" width="200" height="400"/></td>
+     <td><img src="https://github.com/user-attachments/assets/1b34850a-5691-429a-8ada-32ac0a453dac" width="200" height="400" alt="Coffee App Screenshot"/></td>
+
+  </tr>
+
+  <tr>
+     <td><img src="https://github.com/user-attachments/assets/d60daba1-5592-49f2-ac6f-f4116cdda95b" width="200" height="400" alt="Coffee App Screenshot"/></td>
+    <td><img src="https://github.com/user-attachments/assets/3f5753fa-f7cd-4056-9c4a-08e98dafbe9d" width="200" height="400"/></td>
+     <td><img src="https://github.com/user-attachments/assets/84dd7939-ef14-4623-a9ee-fe1da989b678" width="200" height="400"/></td>
+    <td><img src="https://github.com/user-attachments/assets/0e563391-743f-4d03-9c39-ea75089ceba7" width="200" height="400"/></td>
+    <td><img src="https://github.com/user-attachments/assets/f391225c-043f-4818-969d-1a0b4540d9d0" width="200" height="400"/></td>
+  </tr>
+
+  <tr>
+     <td><img src="https://github.com/user-attachments/assets/a2a663b6-55eb-49ed-b392-5a061ebb6fce" width="200" height="400"/></td>
+    <td><img src="https://github.com/user-attachments/assets/1a9a5655-6061-4da2-ba46-05f2f94b5837" width="200" height="400"/></td>
+    <td><img src="https://github.com/user-attachments/assets/8e1626f6-44d9-4626-a968-da0a8e1f563f" width="200" height="400" alt="Coffee App Screenshot"/></td>
+    <td><img src="https://github.com/user-attachments/assets/e39cdcca-13b6-4981-a0fd-e555a70f4d6e" width="200" height="400"/></td>
+    <td><img src="https://github.com/user-attachments/assets/1f3097fe-5715-4613-9369-7f9f74f3d543" width="200" height="400"/></td>
+
+    
+  </tr>
+</table>
 ## Get started
 
 1. Install dependencies
